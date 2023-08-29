@@ -18,6 +18,7 @@
                 <template #dropdown>
                   <el-dropdown-menu>
                     <el-dropdown-item command="home">个人中心</el-dropdown-item>
+                    <el-dropdown-item command="password">修改密码</el-dropdown-item>
                     <el-dropdown-item command="loginout">退出登录</el-dropdown-item>
                   </el-dropdown-menu>
                 </template>
@@ -38,6 +39,24 @@
               </el-form-item>
             </el-form>
         </el-dialog>
+        <el-dialog title="Update Password" v-model="dialogPassVisible" width="400px">
+            <el-form :model="passwordFrom" label-width="100px">
+              <el-form-item label="Old Pass">
+                <el-input v-model="passwordFrom.old_password" type="password" placeholder="" show-password></el-input>
+              </el-form-item>
+              <el-form-item label="New Pass">
+                <el-input v-model="passwordFrom.password" type="password" placeholder="" show-password></el-input>
+              </el-form-item>
+              <el-form-item label="Old Pass">
+                <el-input v-model="passwordFrom.re_password" type="password" placeholder="" show-password></el-input>
+              </el-form-item>
+              <!--底部按钮区域-->
+              <el-form-item class="form-bottom">
+                  <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
+                  <lx-button type="primary" style="margin-left: 20px;" @click="confirmPassword">Confirm</lx-button>
+              </el-form-item>
+            </el-form>
+        </el-dialog>
     </div>
     
 </template>
@@ -46,7 +65,7 @@
 import { computed, defineComponent, getCurrentInstance, reactive, ref, toRefs } from 'vue'
 import router from '@/router'
 import upload from "./upload.vue";
-import { updateUser } from '@/api/user';
+import { updateUser, updatePassword } from '@/api/user';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '../store/modules/user';
 import { Local } from '@/cache/index'
@@ -54,9 +73,17 @@ import { Local } from '@/cache/index'
 export default defineComponent({
     components: {upload},
     setup() {
-        const dialogUserVisible = ref(false)
+        const dialogUserVisible = ref(false);
+
+        const dialogPassVisible = ref(false);
+        
         const userInfo = ref({})
         userInfo.value = Local.get("userinfo");
+        const passwordFrom = reactive({
+            old_password: '',
+            password: '',
+            re_password: ''
+        })
         const FileList = ref([])
         // 用户名下拉菜单选择事件
         function handleCommand(command) {
@@ -73,6 +100,10 @@ export default defineComponent({
                 // fileList格式必须要按照name,url的形式（可以参考element ui中文件格式），这里通过接口数据完成图片回显
                 FileList.value = [{ name: new Date(), url: userInfo.value.avatar }];
                 // console.log(FileList.value)
+            }
+            if (command === 'password') {
+                dialogPassVisible.value = true
+                console.log()
             }
         }
 
@@ -95,11 +126,41 @@ export default defineComponent({
                         type: "error",
                         message: "Fail to Edit!",
                     });
-            });
+                });
+        }
+
+        // 确认修改密码
+        function confirmPassword() {
+            console.log(passwordFrom)
+            passwordFrom.id = userInfo.value.id
+            // 判断密码和确认密码是否一致
+            if (passwordFrom.password !== passwordFrom.re_password) {
+                ElMessage({
+                    type: "error",
+                    message: "Password and confirmation password do not match"
+                })
+                return
+            }
+            updatePassword(passwordFrom).then((res) => {
+                    if (res.code == 200) {
+                        ElMessage({
+                            type: "success",
+                            message: "Successfully modified!",
+                        });
+                        dialogPassVisible.value = false;
+                    }
+                })
+                .catch((err) => {
+                    ElMessage({
+                        type: "error",
+                        message: "Fail to Edit!",
+                    });
+                });
         }
 
         function cancelEdit () {
             dialogUserVisible.value = false;
+            dialogPassVisible.value = false;
         };
 
         // 获取子组件传递的
@@ -111,9 +172,12 @@ export default defineComponent({
             userInfo,
             FileList,
             dialogUserVisible,
+            dialogPassVisible,
+            passwordFrom,
             handleCommand,
             cancelEdit,
             confirmEdit,
+            confirmPassword,
             handleSuccess
         }     
     },
