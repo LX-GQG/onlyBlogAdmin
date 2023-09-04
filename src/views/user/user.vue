@@ -2,43 +2,44 @@
     <div class="user-table">
       <!-- 搜索筛选 -->
       <el-form :inline="true" :model="params" class="search" >
-        <el-form-item label="Title:" class="el-item" >
-          <el-input v-model="params.title" placeholder="Title"></el-input>
+        <el-form-item class="el-item" label="ID:">
+            <el-input v-model="params.id" placeholder="Search Id"></el-input>
         </el-form-item>
-        <el-form-item label="Username:" class="el-item" >
-          <el-input v-model="params.username" placeholder="Username"></el-input>
+        <el-form-item class="el-item" label="Username:">
+            <el-input v-model="params.username" placeholder="Search Username"></el-input>
         </el-form-item>
-        <el-form-item label="ArticleTime:" class="el-item">
-          <el-date-picker
-            v-model="dateValue"
-            type="datetimerange"
-            range-separator="To"
-            start-placeholder="Start date"
-            end-placeholder="End date"
-            @change="changeTime"
-          />
+        <el-form-item label="CreateTime:" class="el-item">
+            <el-date-picker
+              v-model="dateValue"
+              type="datetimerange"
+              range-separator="To"
+              start-placeholder="Start date"
+              end-placeholder="End date"
+              @change="changeTime"
+            />
+          </el-form-item>
+        <el-form-item class="el-item">
+            <el-button type="primary" plain :icon="Search" @click="SearchValue">Search</el-button>
         </el-form-item>
         <el-form-item class="el-item">
           <!-- <lx-button type="danger" @click="batchRemove">Batch Delete</lx-button> -->
-          <lx-button type="danger" @click="SearchValue">Search</lx-button>
-          <el-button type="primary" plain :icon="Edit" @click="addNews">Add Article</el-button>
+          <el-button type="warning" plain :icon="Edit" @click="addToAdmin">Add User</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="articleData" border @selection-change="handleSelectionChange" row-key="id">
+      <el-table :data="userData" border @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
-        <el-table-column label="标题" prop="title" align="center"></el-table-column>
-        <el-table-column label="类型" prop="type" width="80" align="center"></el-table-column>
-        <el-table-column label="发布人" align="center">
+        <el-table-column label="ID" prop="id" width="60" align="center"></el-table-column>
+        <el-table-column label="用户名称" prop="username" align="center" min-width="100"></el-table-column>
+        <el-table-column label="用户头像" width="100" align="center">
             <template #default="{ row }">
-                {{ row.username ? row.username : '无' }}
+                <img class="avatar-img" :src="row.avatar ? row.avatar : unloginImg" alt="avatar" />
             </template>
         </el-table-column>
-        <el-table-column label="发布时间" width="180" align="center">
-          <template #default="{ row }">
-              {{ row.create_time ? row.create_time : '无' }}
-          </template>
-        </el-table-column>
-        <el-table-column label="状态" prop="status" width="80" align="center">
+        <el-table-column label="邮箱" prop="email" align="center"></el-table-column>
+        <el-table-column label="IP" prop="ip" align="center"></el-table-column>
+        <el-table-column label="备注" prop="remark" align="center"></el-table-column>
+        <el-table-column label="创建时间" prop="create_time" width="170" align="center"></el-table-column>
+        <el-table-column label="状态" prop="status" width="70">
           <template #default="{ row }">
             <el-switch
               class="ml-2"
@@ -50,7 +51,7 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="Operations" width="180px" align="center">
+        <el-table-column label="Operations" width="180" align="center" fixed="right">
           <template #default="{ row }">
             <div class="operations">
               <lx-button type="primary" @click="handelEdit(row)">Edit</lx-button>
@@ -61,8 +62,7 @@
                 :icon="Scissor"
                 icon-color="#c25afd"
                 title="Are you sure to delete this?"
-                @confirm="confirmEvent(row)"
-              >
+                @confirm="confirmEvent(row)">
                 <template #reference>
                   <lx-button type="danger">Detail</lx-button>
                 </template>
@@ -72,9 +72,9 @@
         </el-table-column>
       </el-table>
       <el-pagination
-        v-if="articleData.length"
+        v-if="userData.length"
         class="pagination"
-        :total="articleTotal"
+        :total="userData.length"
         :current-page="params.pageNo"
         :page-size="params.pageSize"
         :page-sizes="[5, 10, 20, 50]"
@@ -82,43 +82,42 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="400px" fullscreen>
+      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="450px">
         <el-form :model="form" label-width="100px">
-          <el-form-item label="Title">
-            <el-input v-model="form.title" placeholder=""></el-input>
+          <el-form-item label="Username">
+            <el-input v-model="form.username" placeholder=""></el-input>
           </el-form-item>
-          <el-form-item label="content">
-            <editor ref="froalaEditor" @on-change="changeContent" v-model:value="form.content" :content="form.content"></editor>
+          <el-form-item label="Email">
+            <el-input v-model="form.email" placeholder=""></el-input>
           </el-form-item>
-        </el-form>
-        <template #footer>
-            <div class="dialog-footer">
+          <el-form-item label="Remark">
+            <el-input v-model="form.ramark" placeholder=""></el-input>
+          </el-form-item>
+          <el-form-item class="form-bottom">
               <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
               <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">Confirm</lx-button>
-            </div>
-        </template>
+          </el-form-item>
+        </el-form>
       </el-dialog>
     </div>
 </template>
 
 <script setup>
-import { articleList, addArticle, updateArticle, deleteArticle  } from "@/api/article";
+import { userList, addUser, updateUser, deleteUser } from "@/api/user";
+import { roleList } from '@/api/role';
 import { ElMessage } from "element-plus";
-import { reactive, ref, toRefs, nextTick, onMounted } from "vue";
-import { Scissor } from '@element-plus/icons-vue';
-import { Edit } from '@element-plus/icons-vue'
-import editor from "@/components/editor.vue";
+import { reactive, ref, toRefs } from "vue";
+import { Search, Edit } from '@element-plus/icons-vue';
 
-const articleData = ref([]);
-const articleTotal = ref(0);
-const roleData = ref([]);
+const isDisabled = ref(false)
 const isEdit = ref(false)
+const userData = ref([]);
+const roleData = ref([]);
 const dialogTableVisible = ref(false);
 const multipleSelection = ref([])
 const search = ref()
-const froalaEditor = ref(null);
 
-components: {editor}
+const unloginImg = ref('../src/assets/img/unlogin.png');
 
 // 解构失去响应式
 const editData = reactive({
@@ -127,13 +126,93 @@ const editData = reactive({
 // 用 toRefs()方法为它们添加响应性
 const { form } = toRefs(editData);
 const params = reactive({
-  title: "",
+  id: "",
   username: "",
   startDate: "",
   endDate: "",
+  keyword: "",
   pageNo: 1,
   pageSize: 10,
 });
+
+function getUserList() {
+    userList(params)
+    .then((res) => {
+      userData.value = res.data.rows;
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
+function changeStatus(data) {
+  updateAdmin(data).then((res) => {
+    if(res.code == 200) {
+      ElMessage({
+        type: 'success',
+        message: 'Successfully modified!'
+      })
+    }
+  })
+}
+
+// 添加
+function addToAdmin() {
+  isEdit.value = true
+  dialogTableVisible.value = true;
+  editData.form = {};
+}
+
+function confirmAdd() {
+  addUser(editData.form)
+    .then(res => {
+      if(res.code == 200) {
+        ElMessage({
+          type: 'success',
+          message: 'Successfully modified!'
+        })
+      }
+      dialogTableVisible.value = false
+      getUserList()
+    })
+}
+
+function handleSizeChange(val) {
+  params.pageSize = val;
+  getUserList();
+}
+
+function handleCurrentChange(val) {
+  params.pageNo = val;
+  getUserList();
+}
+// 编辑
+function handelEdit(data) {
+  isEdit.value = false
+  dialogTableVisible.value = true;
+  editData.form = data;
+}
+// 确认
+const confirmEdit = () => {
+  updateUser(editData.form)
+    .then((res) => {
+      if(res.code == 200) {
+        ElMessage({
+          type: 'success',
+          message: 'Successfully modified!'
+        })
+      }
+      dialogTableVisible.value = false
+      getUserList()
+    })
+    .catch((err) => {
+      ElMessage({
+          type: 'error',
+          message: 'Fail to Edit!'
+      })
+      console.log(err);
+    });
+};
 
 // 搜索时间
 const dateValue = ref([]);
@@ -146,109 +225,18 @@ const changeTime = (data) => {
     params.startDate = ""
     params.endDate = ""
   }
-  getArticleList()
+  getUserList()
 }
 
-function changeContent(html) {
-    editData.form.content = html
-}
-
-function getArticleList() {
-  articleList(params)
-    .then((res) => {
-      articleData.value = res.data.rows;
-      articleTotal.value = res.data.count;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
-}
-
-function changeStatus(data) {
-  updateArticle(data).then((res) => {
-    if(res.code == 200) {
-      ElMessage({
-        type: 'success',
-        message: 'Successfully modified!'
-      })
-    }
-  })
-}
-
-function addNews() {
-  isEdit.value = true
-  dialogTableVisible.value = true;
-  editData.form = {}
-  nextTick(()=>{
-    froalaEditor.value.setHtml(editData.form.content)
-  });
-  
-}
-
-function confirmAdd() {
-  addArticle(editData.form)
-    .then((res) => {
-      if(res.code == 200) {
-        ElMessage({
-          type: 'success',
-          message: 'Successfully modified!'
-        })
-      }
-      dialogTableVisible.value = false
-      getArticleList()
-    })
-    .catch((err) => {
-      ElMessage({
-          type: 'error',
-          message: 'Fail to Edit!'
-      })
-      console.log(err);
-    });
-}
-
-function handleSizeChange(val) {
-  params.pageSize = val;
-  getArticleList();
-}
-
-function handleCurrentChange(val) {
-  params.pageNo = val;
-  getArticleList();
-}
-// 编辑
-function handelEdit(data) {
-  isEdit.value = false
-  dialogTableVisible.value = true;
-  editData.form = data;
-  nextTick(() => {
-    froalaEditor.value.setHtml(editData.form.content);
-  });
-}
-// 确认
-const confirmEdit = () => {
-  updateArticle(editData.form)
-    .then((res) => {
-      if(res.code == 200) {
-        ElMessage({
-          type: 'success',
-          message: 'Successfully modified!'
-        })
-      }
-      dialogTableVisible.value = false
-      getArticleList()
-    })
-    .catch((err) => {
-      ElMessage({
-          type: 'error',
-          message: 'Fail to Edit!'
-      })
-      console.log(err);
-    });
-};
-
-// 搜索
 const SearchValue = () => {
-  getArticleList()
+  params.keyword = search.value
+  userList(params)
+    .then((res) => {
+        userData.value = res.data.rows;
+    })
+    .catch((err) => {
+        console.log(err);
+    });
 }
 
 const cancelEdit = () => {
@@ -262,7 +250,8 @@ const handleSelectionChange = (val) => {
     multipleSelection.value.push(item['id'])
   })
 }
-
+const handleRoleChange = (data) => {
+}
 //    const batchRemove = () => {
 //      removeBatchUser(multipleSelection.value)
 //        .then((res: any) => {
@@ -271,7 +260,7 @@ const handleSelectionChange = (val) => {
 //              type:'success',
 //              message: 'Bulk deletion succeeded!'
 //            })
-//            getArticleList()
+//            getUserList()
 //          }
 //        })
 //        .catch((err) => {
@@ -285,7 +274,7 @@ const handleSelectionChange = (val) => {
 
 // 确认删除
 const confirmEvent = (data) => {
- deleteArticle({id: data.id})
+  deleteUser({id: data.id})
   .then((res) => {
     if(res.code == 200) {
       ElMessage({
@@ -293,7 +282,7 @@ const confirmEvent = (data) => {
         message: 'successfully deleted!'
       })
     }
-    getArticleList()
+    getUserList()
   })
   .catch((err) => {
     console.log(err)
@@ -304,17 +293,9 @@ const confirmEvent = (data) => {
   })
 }
 
-getArticleList();
+getUserList();
 </script>
 
-<style>
-.dialog-footer {
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>
 <style lang="scss" scoped>
 .user-table {
   padding: 15px;
@@ -336,5 +317,11 @@ getArticleList();
 .user-img {
   width: 50px;
   height: 50px;
+}
+.avatar-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    object-fit: cover;
 }
 </style>

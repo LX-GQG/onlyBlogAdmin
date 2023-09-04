@@ -2,7 +2,7 @@ import { request } from "../utils/request";
 
 export function roleList(data) {
     return request({
-        url: 'api/roleList',
+        url: 'admin/roleList',
         method: 'post',
         data
     })
@@ -10,7 +10,7 @@ export function roleList(data) {
 
 export function updateRole(data) {
     return request({
-        url: 'api/updateRole',
+        url: 'admin/updateRole',
         method: 'post',
         data
     })
@@ -18,7 +18,7 @@ export function updateRole(data) {
 
 export function deleteRole(data) {
     return request({
-        url: 'api/deleteRole',
+        url: 'admin/deleteRole',
         method: 'post',
         data
     })
@@ -26,7 +26,7 @@ export function deleteRole(data) {
 
 export function addRole(data) {
     return request({
-        url: 'api/addRole',
+        url: 'admin/addRole',
         method: 'post',
         data
     })
@@ -34,7 +34,7 @@ export function addRole(data) {
 
 export function permissionList(data) {
     return request({
-        url: 'api/permissionList',
+        url: 'admin/permissionList',
         method: 'post',
         data
     })
@@ -42,7 +42,7 @@ export function permissionList(data) {
 
 export function assignPermission(data) {
     return request({
-        url: 'api/assignPermission',
+        url: 'admin/assignPermission',
         method: 'post',
         data
     })

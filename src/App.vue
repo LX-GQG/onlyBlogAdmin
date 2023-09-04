@@ -7,6 +7,13 @@
   </div>
 </template>
 
+
+<style>
+.el-form--inline .el-form-item {
+  margin-right: 15px;
+  margin-bottom: 12px;
+}
+</style>
 <style scoped>
 html, body {
   height: 100%;

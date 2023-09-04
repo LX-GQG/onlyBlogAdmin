@@ -2,7 +2,7 @@ import { request } from "../utils/request";
 
 export function login(data) {
     return request({
-        url: 'api/login',
+        url: 'admin/login',
         headers: {
             isToken: false
         },
@@ -13,7 +13,7 @@ export function login(data) {
 
 export function getMenu(data) {
     return request({
-        url: 'api/getMenu',
+        url: 'admin/getMenu',
         method: 'post',
         data
     })

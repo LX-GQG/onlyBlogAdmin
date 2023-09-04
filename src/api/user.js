@@ -2,7 +2,7 @@ import { request } from "../utils/request";
 
 export function addUser(data) {
     return request({
-        url: 'api/addUser',
+        url: 'admin/addUser',
         method: 'post',
         data
     })
@@ -10,7 +10,7 @@ export function addUser(data) {
 
 export function updateUser(data) {
     return request({
-        url: 'api/updateUser',
+        url: 'admin/updateUser',
         method: 'post',
         data
     })
@@ -18,7 +18,7 @@ export function updateUser(data) {
 
 export function deleteUser(data) {
     return request({
-        url: 'api/deleteUser',
+        url: 'admin/deleteUser',
         method: 'post',
         data
     })
@@ -26,15 +26,7 @@ export function deleteUser(data) {
 
 export function userList(data) {
     return request({
-        url: 'api/userList',
-        method: 'post',
-        data
-    })
-}
-
-export function updatePassword(data) {
-    return request({
-        url: 'api/updatePassword',
+        url: 'admin/userList',
         method: 'post',
         data
     })

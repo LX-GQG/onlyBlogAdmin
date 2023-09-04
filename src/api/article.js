@@ -2,7 +2,7 @@ import { request } from "../utils/request";
 
 export function addArticle(data) {
     return request({
-        url: 'api/addArticle',
+        url: 'admin/addArticle',
         method: 'post',
         data
     })
@@ -10,7 +10,7 @@ export function addArticle(data) {
 
 export function updateArticle(data) {
     return request({
-        url: 'api/updateArticle',
+        url: 'admin/updateArticle',
         method: 'post',
         data
     })
@@ -18,7 +18,7 @@ export function updateArticle(data) {
 
 export function deleteArticle(data) {
     return request({
-        url: 'api/deleteArticle',
+        url: 'admin/deleteArticle',
         method: 'post',
         data
     })
@@ -26,7 +26,7 @@ export function deleteArticle(data) {
 
 export function articleList(data) {
     return request({
-        url: 'api/articleList',
+        url: 'admin/articleList',
         method: 'post',
         data
     })

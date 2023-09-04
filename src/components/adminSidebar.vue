@@ -54,7 +54,7 @@ export default defineComponent({
             // 如果当前路径是子菜单，则打开子菜单，否则打开第一个子菜单
             // 页面使用了菜单项的route作为index
             next.value = path.split("/").length>2 ? path : menus[0].path;
-            router.replace(next);
+            router.replace(next.value);
           }
       }
       goDefaultPage(menu)

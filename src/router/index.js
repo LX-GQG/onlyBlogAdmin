@@ -74,7 +74,7 @@ const routes = [
     children: [
       {
         path: "/permissions/user",
-        name: "User",
+        name: "Admin",
         icon: 'UserFilled',
         component: () => import("@/views/permissions/user.vue"),
         meta: {
@@ -101,6 +101,18 @@ const routes = [
         name: "Article",
         icon: 'Tickets',
         component: () => import("@/views/article/article.vue"),
+        meta: {
+          requireAuth: true, // 添加该字段，表示进入这个路由是需要登录的
+        },
+        children:[
+          
+        ]
+      },
+      {
+        path: "/user/user",
+        name: "User",
+        icon: 'User',
+        component: () => import("@/views/user/user.vue"),
         meta: {
           requireAuth: true, // 添加该字段，表示进入这个路由是需要登录的
         },

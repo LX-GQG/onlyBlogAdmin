@@ -25,6 +25,15 @@ component:{
 </script>
 
 <style lang="scss" scoped>
+    .search {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 10px 0;
+        align-items: center;
+    }
+    .el-item {
+        margin-bottom: 10px;
+    }
     .content {
         height: 100%;
         display: flex;

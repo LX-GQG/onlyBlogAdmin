@@ -65,7 +65,7 @@
 import { computed, defineComponent, getCurrentInstance, reactive, ref, toRefs } from 'vue'
 import router from '@/router'
 import upload from "./upload.vue";
-import { updateUser, updatePassword } from '@/api/user';
+import { updateAdmin, updatePassword } from '@/api/admin';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '../store/modules/user';
 import { Local } from '@/cache/index'
@@ -109,7 +109,7 @@ export default defineComponent({
 
         // 确认
         function confirmEdit () {
-            updateUser(userInfo.value)
+            updateAdmin(userInfo.value)
                 .then((res) => {
                 if (res.code == 200) {
                     Local.set('userinfo',userInfo.value)

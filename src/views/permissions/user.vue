@@ -13,7 +13,7 @@
           <el-button type="primary" plain :icon="Edit" @click="addToAdmin">Add Admin</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="userData" border @selection-change="handleSelectionChange" row-key="id">
+      <el-table :data="adminData" border @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
         <el-table-column label="用户名称" prop="username"></el-table-column>
         <el-table-column label="状态" prop="status">
@@ -55,9 +55,9 @@
         </el-table-column>
       </el-table>
       <el-pagination
-        v-if="userData.length"
+        v-if="adminData.length"
         class="pagination"
-        :total="userData.length"
+        :total="adminData.length"
         :current-page="params.pageNo"
         :page-size="params.pageSize"
         :page-sizes="[5, 10, 20, 50]"
@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import { userList, addUser, updateUser, deleteUser } from "@/api/user";
+import { adminList, addAdmin, updateAdmin, deleteAdmin } from "@/api/admin";
 import { roleList } from '@/api/role';
 import { ElMessage } from "element-plus";
 import { reactive, ref, toRefs } from "vue";
@@ -102,7 +102,7 @@ import { Scissor, Edit } from '@element-plus/icons-vue';
 
 const isDisabled = ref(false)
 const isEdit = ref(false)
-const userData = ref([]);
+const adminData = ref([]);
 const roleData = ref([]);
 const dialogTableVisible = ref(false);
 const multipleSelection = ref([])
@@ -120,10 +120,10 @@ const params = reactive({
   pageSize: 10,
 });
 
-function getUserList() {
-  userList(params)
+function getAdminList() {
+  adminList(params)
     .then((res) => {
-      userData.value = res.data.rows;
+      adminData.value = res.data.rows;
     })
     .catch((err) => {
       console.log(err);
@@ -142,7 +142,7 @@ function getRoleList() {
 }
 
 function changeStatus(data) {
-  updateUser(data).then((res) => {
+  updateAdmin(data).then((res) => {
     if(res.code == 200) {
       ElMessage({
         type: 'success',
@@ -161,7 +161,7 @@ function addToAdmin() {
 }
 
 function confirmAdd() {
-  addUser(editData.form)
+  addAdmin(editData.form)
     .then(res => {
       if(res.code == 200) {
         ElMessage({
@@ -170,18 +170,18 @@ function confirmAdd() {
         })
       }
       dialogTableVisible.value = false
-      getUserList()
+      getAdminList()
     })
 }
 
 function handleSizeChange(val) {
   params.pageSize = val;
-  getUserList();
+  getAdminList();
 }
 
 function handleCurrentChange(val) {
   params.pageNo = val;
-  getUserList();
+  getAdminList();
 }
 // 编辑
 function handelEdit(data) {
@@ -192,7 +192,7 @@ function handelEdit(data) {
 }
 // 确认
 const confirmEdit = () => {
-  updateUser(editData.form)
+  updateAdmin(editData.form)
     .then((res) => {
       if(res.code == 200) {
         ElMessage({
@@ -201,7 +201,7 @@ const confirmEdit = () => {
         })
       }
       dialogTableVisible.value = false
-      getUserList()
+      getAdminList()
     })
     .catch((err) => {
       ElMessage({
@@ -214,7 +214,7 @@ const confirmEdit = () => {
 
 const SearchValue = () => {
   params.keyword = search.value
-  userList(params)
+  adminList(params)
     .then((res) => {
       userList.value = res.data.records;
     })
@@ -244,7 +244,7 @@ const handleRoleChange = (data) => {
 //              type:'success',
 //              message: 'Bulk deletion succeeded!'
 //            })
-//            getUserList()
+//            getAdminList()
 //          }
 //        })
 //        .catch((err) => {
@@ -258,7 +258,7 @@ const handleRoleChange = (data) => {
 
 // 确认删除
 const confirmEvent = (data) => {
-  deleteUser({id: data.id})
+  deleteAdmin({id: data.id})
   .then((res) => {
     if(res.code == 200) {
       ElMessage({
@@ -266,7 +266,7 @@ const confirmEvent = (data) => {
         message: 'successfully deleted!'
       })
     }
-    getUserList()
+    getAdminList()
   })
   .catch((err) => {
     console.log(err)
@@ -277,7 +277,7 @@ const confirmEvent = (data) => {
   })
 }
 
-getUserList();
+getAdminList();
 </script>
 
 <style lang="scss" scoped>
