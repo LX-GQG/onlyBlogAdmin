@@ -28,10 +28,10 @@ npm run dev 或者 yarn dev
 
 ## 项目截图
 登录
-![登录](./onlyBlogAdmin/gitImg/Snipaste_2023-08-28_10-18-42.png)
+![登录](gitImg/Snipaste_2023-08-28_10-18-42.png)
 
-![用户管理](./onlyBlogAdmin/gitImg/Snipaste_2023-08-28_10-17-58.png)
+![用户管理](gitImg/Snipaste_2023-08-28_10-17-58.png)
 
-![文章管理](./onlyBlogAdmin/gitImg/Snipaste_2023-08-28_10-17-33.png)
+![文章管理](gitImg/Snipaste_2023-08-28_10-17-33.png)
 
-![角色管理](./onlyBlogAdmin/gitImg/Snipaste_2023-08-28_10-18-15.png)
+![角色管理](gitImg/Snipaste_2023-08-28_10-18-15.png)
