@@ -1,7 +1,7 @@
 <template>
     <el-upload
       class="avatar-uploader"
-      action="https://localhost:3000/api/upload"
+      action="https://localhost:3658/admin/upload"
       :headers="header"
       :on-success="handleSuccess"
       :before-upload="beforeUpload"

@@ -38,7 +38,7 @@
               {{ row.create_time ? row.create_time : '无' }}
           </template>
         </el-table-column>
-        <el-table-column label="状态" prop="status" width="80" align="center">
+        <el-table-column label="上架/下架" prop="status" width="90" align="center">
           <template #default="{ row }">
             <el-switch
               class="ml-2"
@@ -165,6 +165,8 @@ function getArticleList() {
 }
 
 function changeStatus(data) {
+  // 修改状态
+  data.status = data.status == true ? 1 : 0;
   updateArticle(data).then((res) => {
     if(res.code == 200) {
       ElMessage({

@@ -49,10 +49,10 @@ export default defineComponent({
             // ],//富文本对图片对操作
             imageDefaultWidth: 400,
             imageUploadParam: 'file', //上传图片的字段
-            imageUploadURL:'https://localhost:3000/admin/editorUpload',//请求地址
-            videoUploadURL: "https://localhost:3000/admin/editorUpload",
-            fileUploadURL: "https://localhost:3000/admin/editorUpload",
-            imageManagerLoadURL: "https://localhost:3000/admin/editorUpload",
+            imageUploadURL:'https://localhost:3658/admin/editorUpload',//请求地址
+            videoUploadURL: "https://localhost:3658/admin/editorUpload",
+            fileUploadURL: "https://localhost:3658/admin/editorUpload",
+            imageManagerLoadURL: "https://localhost:3658/admin/editorUpload",
             imageUploadMethod: 'POST',
             requestHeaders: {
                 'Authorization': "Bearer " + Local.get('token')

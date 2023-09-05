@@ -32,14 +32,21 @@
         <el-table-column label="用户名称" prop="username" align="center" min-width="100"></el-table-column>
         <el-table-column label="用户头像" width="100" align="center">
             <template #default="{ row }">
-                <img class="avatar-img" :src="row.avatar ? row.avatar : unloginImg" alt="avatar" />
+              <!-- preview-teleported不加的话，会出现图片预览被遮罩 -->
+              <el-image
+                class="avatar-img"
+                preview-teleported="true"
+                :src="row.avatar ? row.avatar : unloginImg"
+                :preview-src-list="[row.avatar ? row.avatar : unloginImg]"
+                fit="cover"
+              />
             </template>
         </el-table-column>
         <el-table-column label="邮箱" prop="email" align="center"></el-table-column>
         <el-table-column label="IP" prop="ip" align="center"></el-table-column>
         <el-table-column label="备注" prop="remark" align="center"></el-table-column>
         <el-table-column label="创建时间" prop="create_time" width="170" align="center"></el-table-column>
-        <el-table-column label="状态" prop="status" width="70">
+        <el-table-column label="禁用/启用" prop="status" width="100" align="center">
           <template #default="{ row }">
             <el-switch
               class="ml-2"
@@ -82,16 +89,19 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="450px">
+      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="450px" draggable>
         <el-form :model="form" label-width="100px">
           <el-form-item label="Username">
             <el-input v-model="form.username" placeholder=""></el-input>
+          </el-form-item>
+          <el-form-item v-if="isEdit" label="Password">
+            <el-input v-model="form.password" placeholder=""></el-input>
           </el-form-item>
           <el-form-item label="Email">
             <el-input v-model="form.email" placeholder=""></el-input>
           </el-form-item>
           <el-form-item label="Remark">
-            <el-input v-model="form.ramark" placeholder=""></el-input>
+            <el-input v-model="form.remark" placeholder=""></el-input>
           </el-form-item>
           <el-form-item class="form-bottom">
               <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
@@ -190,6 +200,7 @@ function handleCurrentChange(val) {
 function handelEdit(data) {
   isEdit.value = false
   dialogTableVisible.value = true;
+  editData.form = {};
   editData.form = data;
 }
 // 确认

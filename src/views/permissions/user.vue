@@ -16,7 +16,7 @@
       <el-table :data="adminData" border @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
         <el-table-column label="用户名称" prop="username"></el-table-column>
-        <el-table-column label="状态" prop="status">
+        <el-table-column label="禁用/启用" prop="status">
           <template #default="{ row }">
             <el-switch
               class="ml-2"
