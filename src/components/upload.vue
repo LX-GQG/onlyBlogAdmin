@@ -17,6 +17,7 @@
 import { defineProps, defineEmits, defineComponent,toRefs } from 'vue'
 import { Local } from '@/cache/index'
 import { Plus } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus';
 
 
 export default defineComponent({
@@ -39,14 +40,14 @@ export default defineComponent({
 
         const beforeUpload = (file) => {
             // 文件上传之前的处理逻辑，例如文件类型和大小的验证
-            const isJPG = file.type === 'image/jpeg' || file.type === 'image/png';
-            const isLt2M = file.size / 1024 / 1024 < 2;
-
+            const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/bmp' || image.type === 'image/webp' || image.type === 'image/jpg';
+            const isLt2M = file.size / 1024 / 1024 < 4;
+            console.log(file,isJPG)
             if (!isJPG) {
-            this.$message.error('只能上传jpg/png文件！');
+                ElMessage.error('只能上传jpg/png文件！');
             }
             if (!isLt2M) {
-            this.$message.error('文件大小不能超过2MB！');
+                ElMessage.error('文件大小不能超过4MB！');
             }
 
             return isJPG && isLt2M;

@@ -5,8 +5,8 @@
         <el-form-item label="Title:" class="el-item" >
           <el-input v-model="params.title" placeholder="Title"></el-input>
         </el-form-item>
-        <el-form-item label="Username:" class="el-item" >
-          <el-input v-model="params.username" placeholder="Username"></el-input>
+        <el-form-item label="Author:" class="el-item" >
+          <el-input v-model="params.author" placeholder="Author"></el-input>
         </el-form-item>
         <el-form-item label="ArticleTime:" class="el-item">
           <el-date-picker
@@ -25,14 +25,47 @@
         </el-form-item>
       </el-form>
       <el-table :data="articleData" border @selection-change="handleSelectionChange" row-key="id">
-        <el-table-column type="selection" width="55" />
-        <el-table-column label="标题" prop="title" align="center"></el-table-column>
+        <!-- <el-table-column type="selection" width="55" /> -->
+        <el-table-column label="ID" prop="id" width="60" align="center"></el-table-column>
+        <el-table-column label="标题" align="center">
+          <template #default="{ row }">
+            <el-tooltip
+                :content="row.title"
+                raw-content
+                placement="top-start"
+                v-if="row.title">
+              <span v-if="row.title && row.title.length <= 30">
+                  {{ row.title }}
+              </span>
+              <span v-if="row.title && row.title.length > 30">                
+                  {{ row.title.substr(0, 30) + "..."}}
+              </span>
+            </el-tooltip>
+            <span v-else-if="row.title== null"> 无 </span>
+          </template>
+        </el-table-column>
         <el-table-column label="类型" prop="type" width="80" align="center"></el-table-column>
-        <el-table-column label="发布人" align="center">
+        <el-table-column label="发布人" align="center" width="100">
             <template #default="{ row }">
-                {{ row.username ? row.username : '无' }}
+                {{ row.author ? row.author : '无' }}
             </template>
         </el-table-column>
+        <el-table-column label="封面" min-width="80" align="center">
+          <template #default="{ row }">
+            <el-image
+                class="cover-img"
+                preview-teleported="true"
+                :src="row.cover ? row.cover : ''"
+                :preview-src-list="[row.cover ? row.cover : '']"
+                fit="cover"
+              />
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="标签" min-width="80" align="center">
+          <template #default="{ row }">
+            <el-tag class="ml-2 tag" type="success" v-for="(item, index) in row.tags" :key="index">{{ item.name }}</el-tag>
+          </template>
+        </el-table-column> -->
         <el-table-column label="发布时间" width="180" align="center">
           <template #default="{ row }">
               {{ row.create_time ? row.create_time : '无' }}
@@ -87,7 +120,24 @@
           <el-form-item label="Title">
             <el-input v-model="form.title" placeholder=""></el-input>
           </el-form-item>
-          <el-form-item label="content">
+          <el-form-item label="Tag" v-if="hasTags">
+            <el-select
+                  v-model="form.tags"
+                  value-key="id"
+                  multiple
+                  >
+                  <el-option
+                    v-for="item in tagData"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item">
+                  </el-option>
+                </el-select>
+          </el-form-item>
+          <el-form-item label="Cover">
+            <upload :imageUrl="form.cover" @upload-success="handleSuccess"></upload>
+          </el-form-item>
+          <el-form-item label="Content">
             <editor ref="froalaEditor" @on-change="changeContent" v-model:value="form.content" :content="form.content"></editor>
           </el-form-item>
         </el-form>
@@ -102,23 +152,24 @@
 </template>
 
 <script setup>
-import { articleList, addArticle, updateArticle, deleteArticle  } from "@/api/article";
+import { articleList, addArticle, updateArticle, deleteArticle, getArticleTag } from "@/api/article";
 import { ElMessage } from "element-plus";
 import { reactive, ref, toRefs, nextTick, onMounted } from "vue";
 import { Scissor } from '@element-plus/icons-vue';
 import { Edit } from '@element-plus/icons-vue'
 import editor from "@/components/editor.vue";
+import upload from "@/components/upload.vue"
+
+components: {editor,upload}
 
 const articleData = ref([]);
 const articleTotal = ref(0);
-const roleData = ref([]);
 const isEdit = ref(false)
 const dialogTableVisible = ref(false);
 const multipleSelection = ref([])
-const search = ref()
 const froalaEditor = ref(null);
+const hasTags = ref(false)
 
-components: {editor}
 
 // 解构失去响应式
 const editData = reactive({
@@ -128,12 +179,18 @@ const editData = reactive({
 const { form } = toRefs(editData);
 const params = reactive({
   title: "",
-  username: "",
+  author: "",
   startDate: "",
   endDate: "",
   pageNo: 1,
   pageSize: 10,
 });
+
+// 上传封面
+function handleSuccess(data) {
+    editData.form.cover = data.url
+    console.log(data)
+}
 
 // 搜索时间
 const dateValue = ref([]);
@@ -174,6 +231,21 @@ function changeStatus(data) {
         message: 'Successfully modified!'
       })
     }
+  })
+}
+
+// 获取标签
+const tagData = ref([])
+function getTag() {
+  getArticleTag().then((res) => {
+    if(res.code == 200) {
+      tagData.value = res.data
+      hasTags.value = true
+    }else{
+      hasTags.value = false
+    }
+  }).catch((err) => {
+    console.log(err)
   })
 }
 
@@ -307,6 +379,7 @@ const confirmEvent = (data) => {
 }
 
 getArticleList();
+getTag();
 </script>
 
 <style>
@@ -315,6 +388,14 @@ getArticleList();
   display: flex;
   align-items: center;
   justify-content: center;
+}
+:deep(table tr span.el-tooltip__trigger) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.el-form .el-select{
+  width: 100%;
 }
 </style>
 <style lang="scss" scoped>
@@ -338,5 +419,14 @@ getArticleList();
 .user-img {
   width: 50px;
   height: 50px;
+}
+.tag {
+  margin-right: 5px;
+}
+.cover-img {
+  width: auto;
+  height: 70px;
+  border-radius: 5px;
+  object-fit: cover;
 }
 </style>

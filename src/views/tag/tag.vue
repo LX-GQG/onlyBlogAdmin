@@ -1,39 +1,19 @@
 <template>
     <div class="user-table">
       <!-- 搜索筛选 -->
-      <el-form :inline="true" :model="search" class="search" >
-        <!-- <el-form-item class="el-item" >
-          <el-input  v-model="search" placeholder="Search"></el-input>
-        </el-form-item>
-        <el-form-item class="el-item">
-          <lx-button type="danger" @click="SearchValue"><el-icon><Scissor /></el-icon>Search</lx-button>
+      <el-form :inline="true" :model="params" class="search" >
+        <!-- <el-form-item class="el-item">
+            <el-button type="primary" plain :icon="Search" @click="SearchValue">Search</el-button>
         </el-form-item> -->
         <el-form-item class="el-item">
-          <!-- <lx-button type="danger" @click="batchRemove">Batch Delete</lx-button> -->
-          <el-button type="primary" plain :icon="Edit" @click="addToAdmin">Add Admin</el-button>
+          <el-button type="warning" plain :icon="Edit" @click="addToAdmin">Add Tag</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="adminData" border @selection-change="handleSelectionChange" row-key="id">
+      <el-table :data="tagData" border @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
-        <el-table-column label="用户名称" prop="username"></el-table-column>
-        <el-table-column label="禁用/启用" prop="status">
-          <template #default="{ row }">
-            <el-switch
-              class="ml-2"
-              style="--el-switch-on-color: #b37df1; --el-switch-off-color: #dcdfe6"
-              :active-value="1" 
-              :inactive-value="0" 
-              v-model="row.status"
-              @change="changeStatus(row)">
-            </el-switch>
-          </template>
-        </el-table-column>
-        <el-table-column label="角色">
-            <template #default="{ row }">
-                {{ row.roles[0] ? row.roles[0].role_type : '无角色' }}
-            </template>
-        </el-table-column>
-        <el-table-column label="Operations" width="180px">
+        <el-table-column label="ID" prop="id" width="120" align="center"></el-table-column>
+        <el-table-column label="标签名称" prop="name" align="center" min-width="100"></el-table-column>
+        <el-table-column label="Operations" width="180" align="center" fixed="right">
           <template #default="{ row }">
             <div class="operations">
               <lx-button type="primary" @click="handelEdit(row)">Edit</lx-button>
@@ -44,8 +24,7 @@
                 :icon="Scissor"
                 icon-color="#c25afd"
                 title="Are you sure to delete this?"
-                @confirm="confirmEvent(row)"
-              >
+                @confirm="confirmEvent(row)">
                 <template #reference>
                   <lx-button type="danger">Detail</lx-button>
                 </template>
@@ -55,9 +34,9 @@
         </el-table-column>
       </el-table>
       <el-pagination
-        v-if="adminData.length"
+        v-if="tagData.length"
         class="pagination"
-        :total="adminData.length"
+        :total="tagData.length"
         :current-page="params.pageNo"
         :page-size="params.pageSize"
         :page-sizes="[5, 10, 20, 50]"
@@ -65,24 +44,10 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="450px">
+      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="450px" draggable>
         <el-form :model="form" label-width="100px">
-          <el-form-item label="username">
-            <el-input v-model="form.username" placeholder=""></el-input>
-          </el-form-item>
-          <el-form-item label="new Pass">
-            <el-input v-model="form.password" placeholder="" show-password></el-input>
-          </el-form-item>
-          <el-form-item label="role">
-            <el-select v-model="form.rid" @change="handleRoleChange" placeholder="请选择用户角色" style="width:310px" clearable :disabled="isDisabled">
-                <el-option
-                  v-for="(item, index) in roleData"
-                  :key="index"
-                  :label="item.role_type"
-                  :value="item.id"
-                  >
-                </el-option>
-            </el-select>
+          <el-form-item label="Tag Name">
+            <el-input v-model="form.name" placeholder=""></el-input>
           </el-form-item>
           <el-form-item class="form-bottom">
               <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
@@ -94,19 +59,19 @@
 </template>
 
 <script setup>
-import { adminList, addAdmin, updateAdmin, deleteAdmin } from "@/api/admin";
-import { roleList } from '@/api/role';
+import { tagList, addTag, updateTag, deleteTag } from "@/api/tag";
 import { ElMessage } from "element-plus";
 import { reactive, ref, toRefs } from "vue";
-import { Scissor, Edit } from '@element-plus/icons-vue';
+import { Search, Edit } from '@element-plus/icons-vue';
 
 const isDisabled = ref(false)
 const isEdit = ref(false)
-const adminData = ref([]);
-const roleData = ref([]);
+const tagData = ref([]);
 const dialogTableVisible = ref(false);
 const multipleSelection = ref([])
 const search = ref()
+
+const unloginImg = ref('../src/assets/img/unlogin.png');
 
 // 解构失去响应式
 const editData = reactive({
@@ -115,35 +80,25 @@ const editData = reactive({
 // 用 toRefs()方法为它们添加响应性
 const { form } = toRefs(editData);
 const params = reactive({
-  keyword: "",
+  id: "",
+  name: "",
   pageNo: 1,
   pageSize: 10,
 });
 
-function getAdminList() {
-  adminList(params)
+function getTagList() {
+    tagList(params)
     .then((res) => {
-      adminData.value = res.data.rows;
+      tagData.value = res.data.rows;
     })
     .catch((err) => {
       console.log(err);
     });
 }
 
-function getRoleList() {
-    roleList().then((res) => {
-      if (res.code == 200) {
-        roleData.value = res.data.rows
-      }
-    }).catch((err) => {
-      isDisabled.value = true
-      // console.log(err)
-    })
-}
-
 function changeStatus(data) {
   data.status = data.status == true ? 1 : 0;
-  updateAdmin(data).then((res) => {
+  updateTag(data).then((res) => {
     if(res.code == 200) {
       ElMessage({
         type: 'success',
@@ -156,13 +111,12 @@ function changeStatus(data) {
 // 添加
 function addToAdmin() {
   isEdit.value = true
-  getRoleList();
   dialogTableVisible.value = true;
   editData.form = {};
 }
 
 function confirmAdd() {
-  addAdmin(editData.form)
+  addTag(editData.form)
     .then(res => {
       if(res.code == 200) {
         ElMessage({
@@ -171,29 +125,29 @@ function confirmAdd() {
         })
       }
       dialogTableVisible.value = false
-      getAdminList()
+      getTagList()
     })
 }
 
 function handleSizeChange(val) {
   params.pageSize = val;
-  getAdminList();
+  getTagList();
 }
 
 function handleCurrentChange(val) {
   params.pageNo = val;
-  getAdminList();
+  getTagList();
 }
 // 编辑
 function handelEdit(data) {
   isEdit.value = false
-  getRoleList();
   dialogTableVisible.value = true;
+  editData.form = {};
   editData.form = data;
 }
 // 确认
 const confirmEdit = () => {
-  updateAdmin(editData.form)
+  updateTag(editData.form)
     .then((res) => {
       if(res.code == 200) {
         ElMessage({
@@ -202,7 +156,7 @@ const confirmEdit = () => {
         })
       }
       dialogTableVisible.value = false
-      getAdminList()
+      getTagList()
     })
     .catch((err) => {
       ElMessage({
@@ -213,14 +167,28 @@ const confirmEdit = () => {
     });
 };
 
+// 搜索时间
+const dateValue = ref([]);
+
+const changeTime = (data) => {
+  if(data) {
+    params.startDate = data[0]
+    params.endDate = data[1]
+  }else{
+    params.startDate = ""
+    params.endDate = ""
+  }
+  getTagList()
+}
+
 const SearchValue = () => {
   params.keyword = search.value
-  adminList(params)
+  tagList(params)
     .then((res) => {
-      userList.value = res.data.records;
+        tagData.value = res.data.rows;
     })
     .catch((err) => {
-      console.log(err);
+        console.log(err);
     });
 }
 
@@ -235,31 +203,10 @@ const handleSelectionChange = (val) => {
     multipleSelection.value.push(item['id'])
   })
 }
-const handleRoleChange = (data) => {
-}
-//    const batchRemove = () => {
-//      removeBatchUser(multipleSelection.value)
-//        .then((res: any) => {
-//          if(res.code == 200) {
-//            ElMessage({
-//              type:'success',
-//              message: 'Bulk deletion succeeded!'
-//            })
-//            getAdminList()
-//          }
-//        })
-//        .catch((err) => {
-//          console.log(err)
-//          ElMessage({
-//            type:'error',
-//            message: err
-//        })
-//      })
-//    }
 
 // 确认删除
 const confirmEvent = (data) => {
-  deleteAdmin({id: data.id})
+  deleteTag({id: data.id})
   .then((res) => {
     if(res.code == 200) {
       ElMessage({
@@ -267,7 +214,7 @@ const confirmEvent = (data) => {
         message: 'successfully deleted!'
       })
     }
-    getAdminList()
+    getTagList()
   })
   .catch((err) => {
     console.log(err)
@@ -278,17 +225,12 @@ const confirmEvent = (data) => {
   })
 }
 
-getAdminList();
+getTagList();
 </script>
 
 <style lang="scss" scoped>
 .user-table {
   padding: 15px;
-}
-.search {
-  display: flex;
-  padding: 10px 0;
-  align-items: center;
 }
 .pagination {
   margin-top: 15px;
@@ -308,7 +250,10 @@ getAdminList();
   width: 50px;
   height: 50px;
 }
-.el-item {
-  margin-bottom: 0;
+.avatar-img {
+    width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    object-fit: cover;
 }
 </style>

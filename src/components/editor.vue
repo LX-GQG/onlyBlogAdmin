@@ -28,8 +28,8 @@ export default defineComponent({
             "fullscreen", "bold", "italic", "underline", "strikeThrough", "subscript", "superscript",
             "|", "fontFamily", "fontSize", "color", "inlineClass", "inlineStyle", "paragraphStyle", "lineHeight", "|",
             "paragraphFormat", "align","formatOL","formatUL", "outdent", "indent", "quote", "-", "insertLink",
-            "insertImage", "insertVideo", "embedly", "insertFile", "insertTable", "|", "emoticons", "fontAwesome",
-            "specialCharacters", "insertHR", "selectAll", "clearFormatting", "|", "print", "getPDF", "spellChecker",
+            "insertImage", "insertVideo", "embedly", "insertFile", "insertTable", "|", "emoticons",
+            "specialCharacters", "insertHR", "selectAll", "clearFormatting", "|", "print", "spellChecker",
             "help", "html", "|", "undo", "redo"
             ], //自定义toolbarButtons，功能菜单
             fontFamily:{

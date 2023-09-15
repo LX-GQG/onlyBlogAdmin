@@ -31,3 +31,11 @@ export function articleList(data) {
         data
     })
 }
+
+export function getArticleTag(data) {
+    return request({
+        url: 'admin/getArticleTag',
+        method: 'post',
+        data
+    })
+}

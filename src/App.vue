@@ -13,6 +13,10 @@
   margin-right: 15px;
   margin-bottom: 12px;
 }
+/** 清除黑框问题 **/
+.el-dropdown-link:focus-visible {
+  outline: unset;
+}
 </style>
 <style scoped>
 html, body {

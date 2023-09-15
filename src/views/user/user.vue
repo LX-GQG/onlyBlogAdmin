@@ -156,7 +156,8 @@ function getUserList() {
 }
 
 function changeStatus(data) {
-  updateAdmin(data).then((res) => {
+  data.status = data.status == true ? 1 : 0;
+  updateUser(data).then((res) => {
     if(res.code == 200) {
       ElMessage({
         type: 'success',
