@@ -39,3 +39,11 @@ export function updatePassword(data) {
         data
     })
 }
+
+export function getRoleList(data) {
+    return request({
+        url: 'admin/getRoleList',
+        method: 'post',
+        data
+    })
+}

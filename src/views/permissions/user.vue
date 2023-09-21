@@ -94,8 +94,7 @@
 </template>
 
 <script setup>
-import { adminList, addAdmin, updateAdmin, deleteAdmin } from "@/api/admin";
-import { roleList } from '@/api/role';
+import { adminList, addAdmin, updateAdmin, deleteAdmin, getRoleList } from "@/api/admin";
 import { ElMessage } from "element-plus";
 import { reactive, ref, toRefs } from "vue";
 import { Scissor, Edit } from '@element-plus/icons-vue';
@@ -130,10 +129,12 @@ function getAdminList() {
     });
 }
 
-function getRoleList() {
-    roleList().then((res) => {
+function getRole() {
+    getRoleList().then((res) => {
       if (res.code == 200) {
-        roleData.value = res.data.rows
+        roleData.value = res.data
+      } else {
+        isDisabled.value = true
       }
     }).catch((err) => {
       isDisabled.value = true
@@ -156,7 +157,7 @@ function changeStatus(data) {
 // 添加
 function addToAdmin() {
   isEdit.value = true
-  getRoleList();
+  getRole();
   dialogTableVisible.value = true;
   editData.form = {};
 }
@@ -187,7 +188,7 @@ function handleCurrentChange(val) {
 // 编辑
 function handelEdit(data) {
   isEdit.value = false
-  getRoleList();
+  getRole();
   dialogTableVisible.value = true;
   editData.form = data;
 }

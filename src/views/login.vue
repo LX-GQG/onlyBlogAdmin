@@ -29,9 +29,23 @@
                         type="password"
                         size="large"
                         show-password
-                        @keyup.enter="handleLogin"
                       ></el-input>
                     </el-form-item>
+                    <el-form-item prop="identifyCode">
+                      <el-input
+                        class="login-input"
+                        v-model.trim="loginForm.identifyCode"
+                        @keyup.enter="handleLogin"
+                      >
+                      </el-input>
+                      <IdentifyCode
+                        ref="identify"
+                        class="code-box"
+                        :contentWidth="100"
+                        :contentHeight="38"
+                        @updateIdentifyCode="setIdentifyCode"
+                      ></IdentifyCode>
+                      </el-form-item>
                     <div class="login-button" @click.prevent="handleLogin">
                       Login
                     </div>
@@ -56,12 +70,14 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { login, getMenu } from "../api/login";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from '../store/modules/user';
 import { storeToRefs } from 'pinia'
 import { Local } from '@/cache/index'
+import IdentifyCode from "@/components/IdentifyCode.vue";
+import { ElMessage, ElLoading } from "element-plus";
 
 const userStore = useUserStore()
 const { userInfo, token } = storeToRefs(userStore);
@@ -80,36 +96,63 @@ const route = useRoute();
 const loginForm = reactive({
   username: "",
   password: "",
+  identifyCode: ""
 });
 
+const identify = ref(null)
+let curIdentifyCode = ref("");
+
+const setIdentifyCode = (val) => {
+  curIdentifyCode.value = val;
+};
+
 const handleLogin = () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true, text: "Loading..." })
+  if (curIdentifyCode.value.toUpperCase() === loginForm.identifyCode.toUpperCase()) {
+    loginAdmin(loadingInstance)
+  } else {
+    loadingInstance.close()
+    ElMessage({
+        type: 'error',
+        message: 'Verification code error!'
+    })
+    identify.value.refreshCode();
+  }
+};
+
+const loginAdmin = (loadingInstance) => {
   login({
       username: loginForm.username,
       password: loginForm.password,
   })
     .then((res) => {
-        userStore.setToken(res.data.token);
-        userStore.setUserInfo(res.data.userinfo);
-        Local.set("userinfo",res.data.userinfo);
-        Local.set("token",res.data.token);
-        getMenu().then((ret) => {
-          let url = ret.data[0].path ? ret.data[0].path : ret.data[0].children[0].path;
-          console.log(url);
-          if (ret.code == 200) {
-            Local.set('menu',ret.data);
-            router.push({ path: route.query.redirect || url });
-          }
-        }).catch((err) => {
-          // 清空
-          userStore.setToken("");
-          userStore.setUserInfo({});
-          Local.clear();
-        });
+        if (res.code == 200) {
+          userStore.setToken(res.data.token);
+          userStore.setUserInfo(res.data.userinfo);
+          Local.set("userinfo",res.data.userinfo);
+          Local.set("token",res.data.token);
+          getMenu().then((ret) => {
+            let url = ret.data[0].path ? ret.data[0].path : ret.data[0].children[0].path;
+            console.log(url);
+            if (ret.code == 200) {
+              Local.set('menu',ret.data);
+              loadingInstance.close();
+              router.push({ path: route.query.redirect || url });
+            }
+          }).catch((err) => {
+            loadingInstance.close();
+            // 清空
+            userStore.setToken("");
+            userStore.setUserInfo({});
+            Local.clear();
+          });
+        }
     })
     .catch((err) => {
       console.log(err);
+      loadingInstance.close();
     });
-};
+}
 </script>
 
 <style lang="scss" scoped>
@@ -144,6 +187,14 @@ const handleLogin = () => {
       font-size: 13px;
     }
   }
+}
+.code-box {
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+  border-left: 1px solid #d4d4d4;
+  height: 38px;
 }
 .login-content {
     width: 100%;
