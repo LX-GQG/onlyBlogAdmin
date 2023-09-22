@@ -17,6 +17,7 @@ const props = defineProps({
   identifyCode: {
     type: String,
     default: "0123456789ABCDEFGHIJKLMNPQRSTUVWXYZ",
+    // 0和O太像了，所以去掉了O
   },
   fontSizeMin: {
     type: Number,

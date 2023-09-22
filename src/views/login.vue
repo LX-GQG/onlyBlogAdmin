@@ -99,6 +99,7 @@ const loginForm = reactive({
   identifyCode: ""
 });
 
+// 验证码
 const identify = ref(null)
 let curIdentifyCode = ref("");
 
@@ -107,11 +108,9 @@ const setIdentifyCode = (val) => {
 };
 
 const handleLogin = () => {
-  const loadingInstance = ElLoading.service({ fullscreen: true, text: "Loading..." })
   if (curIdentifyCode.value.toUpperCase() === loginForm.identifyCode.toUpperCase()) {
-    loginAdmin(loadingInstance)
+    loginAdmin()
   } else {
-    loadingInstance.close()
     ElMessage({
         type: 'error',
         message: 'Verification code error!'
@@ -120,7 +119,8 @@ const handleLogin = () => {
   }
 };
 
-const loginAdmin = (loadingInstance) => {
+const loginAdmin = () => {
+  const loadingInstance = ElLoading.service({ fullscreen: true, text: "Loading..." })
   login({
       username: loginForm.username,
       password: loginForm.password,
