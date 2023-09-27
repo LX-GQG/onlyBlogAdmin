@@ -83,10 +83,11 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="Operations" width="180px" align="center">
+        <el-table-column label="Operations" width="250px" align="center">
           <template #default="{ row }">
             <div class="operations">
-              <lx-button type="primary" @click="handelEdit(row)">Edit</lx-button>
+              <lx-button type="primary" @click="handleEdit(row)">Edit</lx-button>
+              <el-button type="warning" @click="handleComment(row)">Comment</el-button>
               <el-popconfirm
                 width="230px"
                 confirm-button-text="Yes"
@@ -115,7 +116,7 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="400px" fullscreen>
+      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="400px" fullscreen draggable>
         <el-form :model="form" label-width="100px">
           <el-form-item label="Title">
             <el-input v-model="form.title" placeholder=""></el-input>
@@ -148,17 +149,89 @@
             </div>
         </template>
       </el-dialog>
+      <!-- 评论弹窗 -->
+      <el-dialog
+        v-model="dialogCommentVisible"
+        :before-close="handleClose"
+        draggable
+      >
+        <template #header="{ titleId, titleClass }">
+          <div class="dialog-header">
+            <div class="dialog-left">
+              <h5 :id="titleId" :class="titleClass">Comment</h5>
+              <lx-button type="primary" @click="addCommentVisible">Add</lx-button>
+            </div>
+          </div>
+        </template>
+        <el-empty v-if="commentList.length == 0" :image-size="200" />   
+        <div class="comment_list">
+          <div class="comment_item" v-for="(item) in commentList" :key="item.id">
+            <div class="item_right">
+              <div class="user_info">
+                <img class="user_avatar" :src="item.user.avatar ? item.user.avatar : '../src/assets/img/empty_avatar.png'" alt="avatar" />
+              </div>
+              <div class="user_comment">
+                <div class="username">
+                  {{ item.user.username ? item.user.username : '' }}
+                </div>
+                <div class="content">
+                  {{ item.content ? item.content : '' }}
+                </div>
+              </div>
+            </div>
+            <div class="item_left">
+              <el-popconfirm
+                width="230px"
+                confirm-button-text="Yes"
+                cancel-button-text="No"
+                :icon="Scissor"
+                icon-color="#c25afd"
+                title="Are you sure to delete this?"
+                @confirm="handleDel(item.id)"
+                >
+                <template #reference>
+                  <div class="del">
+                    DEL
+                  </div>
+                </template>
+              </el-popconfirm>
+              <div class="thumb">
+                <!-- 点赞，暂时还没做 -->
+              </div>
+            </div>
+          </div>
+        </div>
+        <el-dialog
+          title="Add Comment"
+          v-model="dialogAddVisible"
+          width="400px"
+          append-to-body
+          draggable
+        >
+          <el-form :model="addParams" label-width="100px">
+            <el-form-item label="Content">
+              <el-input v-model="addParams.content" placeholder=""></el-input>
+            </el-form-item>
+          </el-form>
+          <template #footer>
+            <div class="dialog-footer">
+              <lx-button type="info" style="margin-left: 15px;" @click="dialogAddVisible = false">Cancel</lx-button>
+              <lx-button type="primary" style="margin-left: 20px;" @click="confirmAddComment()">Confirm</lx-button>
+            </div>
+          </template>
+        </el-dialog> 
+      </el-dialog>
     </div>
 </template>
 
 <script setup>
-import { articleList, addArticle, updateArticle, deleteArticle, getArticleTag } from "@/api/article";
+import { articleList, addArticle, updateArticle, deleteArticle, getArticleTag, getArticleComment, addComment, delComment } from "@/api/article";
 import { ElMessage } from "element-plus";
 import { reactive, ref, toRefs, nextTick, onMounted } from "vue";
-import { Scissor } from '@element-plus/icons-vue';
-import { Edit } from '@element-plus/icons-vue'
+import { Scissor, Edit } from '@element-plus/icons-vue';
 import editor from "@/components/editor.vue";
 import upload from "@/components/upload.vue"
+import { Local } from '@/cache/index'
 
 components: {editor,upload}
 
@@ -169,8 +242,9 @@ const dialogTableVisible = ref(false);
 const multipleSelection = ref([])
 const froalaEditor = ref(null);
 const hasTags = ref(false)
+const userinfo = ref({})
 
-
+userinfo.value = Local.get("userinfo");
 // 解构失去响应式
 const editData = reactive({
   form: {},
@@ -185,11 +259,16 @@ const params = reactive({
   pageNo: 1,
   pageSize: 10,
 });
+const addParams = reactive({
+  aid: "",
+  uid: "",
+  pid: "",
+  content: "",
+})
 
 // 上传封面
 function handleSuccess(data) {
     editData.form.cover = data.url
-    console.log(data)
 }
 
 // 搜索时间
@@ -289,8 +368,81 @@ function handleCurrentChange(val) {
   params.pageNo = val;
   getArticleList();
 }
+
+// 评论
+const dialogCommentVisible = ref(false)
+const dialogAddVisible = ref(false)
+const commentList = ref([])
+
+function handleClose() {
+  dialogCommentVisible.value = false
+  dialogAddVisible.value = false
+}
+
+function handleComment(data) {
+  addParams.aid = data.id;
+  dialogCommentVisible.value = true
+  getArticleComment({aid: data.id}).then((res) => {
+    commentList.value = res.data
+  }).catch(err => {
+    ElMessage({
+        type: 'error',
+        message: res.msg
+    })
+  })
+}
+
+function handleDel(id) {
+  delComment({id: id}).then((res) => {
+    if(res.code == 200) {
+      commentList.value.splice(id,1)
+      ElMessage({
+        type: 'success',
+        message: 'Successfully deleted!'
+      })
+    }    
+  }).catch(err => {
+    ElMessage({
+          type: 'error',
+          message: res.msg
+      })
+  })
+}
+
+function addCommentVisible() {
+  dialogAddVisible.value = true
+}
+
+function confirmAddComment() {
+  addParams.uid = userinfo.value.id
+  console.log(addParams)
+  addComment(addParams).then((res) => {
+    if(res.code == 200) {
+      ElMessage({
+        type: 'success',
+        message: 'Successfully added!'
+      })
+      dialogAddVisible.value = false
+      addParams = {}
+      getArticleComment({aid: addParams.aid}).then((res) => {
+        commentList.value = res.data
+      }).catch(err => {
+        ElMessage({
+            type: 'error',
+            message: res.msg
+        })
+      })
+    }
+  }).catch(err => {
+    ElMessage({
+          type: 'error',
+          message: res.msg
+      })
+  })
+}
+
 // 编辑
-function handelEdit(data) {
+function handleEdit(data) {
   isEdit.value = false
   dialogTableVisible.value = true;
   editData.form = data;
@@ -428,5 +580,67 @@ getTag();
   height: 70px;
   border-radius: 5px;
   object-fit: cover;
+}
+.comment_list {
+}
+.comment_item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding: 15px 0;
+}
+.item_right {
+  display: flex;
+  align-items: center;
+}
+.user_info {
+  display: flex;
+  align-items: center;
+  margin-right: 15px;
+}
+.user_avatar {
+  width: 50px;
+  height: 50px;
+  border: 1px solid #e1e1e1;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.user_comment {
+  height: 50px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-around;
+}
+.username {
+  font-size: 16px;
+  font-weight: 600;
+}
+.content {
+  font-size: 14px;
+  color: #666;
+}
+.item_left {
+  display: flex;
+  align-items: center;
+}
+.del {
+  cursor: pointer;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dialog-left {
+  display: flex;
+  align-items: center;
+}
+.dialog-left h5 {
+  margin: 0;
+  margin-right: 25px;
 }
 </style>

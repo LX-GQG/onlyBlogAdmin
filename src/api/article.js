@@ -39,3 +39,27 @@ export function getArticleTag(data) {
         data
     })
 }
+
+export function getArticleComment(data) {
+    return request({
+        url: 'admin/articleComment',
+        method: 'post',
+        data
+    })
+}
+
+export function addComment(data) {
+    return request({
+        url: 'admin/addComment',
+        method: 'post',
+        data
+    })
+}
+
+export function delComment(data) {
+    return request({
+        url: 'admin/delComment',
+        method: 'post',
+        data
+    })
+}

@@ -34,6 +34,7 @@
                     <el-form-item prop="identifyCode">
                       <el-input
                         class="login-input"
+                        maxlength="4"
                         v-model.trim="loginForm.identifyCode"
                         @keyup.enter="handleLogin"
                       >
