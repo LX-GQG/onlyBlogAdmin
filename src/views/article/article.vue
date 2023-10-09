@@ -175,28 +175,36 @@
                   {{ item.user.username ? item.user.username : '' }}
                 </div>
                 <div class="content">
-                  {{ item.content ? item.content : '' }}
+                  <span class="content_txt">
+                    {{ item.content ? item.content : '' }}
+                  </span>
+                  <el-popconfirm
+                    width="230px"
+                    confirm-button-text="Yes"
+                    cancel-button-text="No"
+                    :icon="Scissor"
+                    icon-color="#c25afd"
+                    title="Are you sure to delete this?"
+                    @confirm="handleDel(item.id,item.aid)"
+                    >
+                    <template #reference>
+                      <span class="del">
+                        DEL
+                      </span>
+                    </template>
+                  </el-popconfirm>
                 </div>
               </div>
             </div>
             <div class="item_left">
-              <el-popconfirm
-                width="230px"
-                confirm-button-text="Yes"
-                cancel-button-text="No"
-                :icon="Scissor"
-                icon-color="#c25afd"
-                title="Are you sure to delete this?"
-                @confirm="handleDel(item.id)"
-                >
-                <template #reference>
-                  <div class="del">
-                    DEL
-                  </div>
-                </template>
-              </el-popconfirm>
               <div class="thumb">
                 <!-- 点赞，暂时还没做 -->
+                <img src="../../../src/assets/img/thumb.png" alt="thumb"/>
+                <span>{{ item.real_thumbs_num }}</span>
+              </div>
+              <div>
+                <span>点赞数叠加</span>
+                <el-input class="thumb_input" v-model="item.thumbs_num" @change="changeThumb(item)"></el-input>
               </div>
             </div>
           </div>
@@ -209,6 +217,19 @@
           draggable
         >
           <el-form :model="addParams" label-width="100px">
+            <el-form-item label="User">
+              <el-select
+                v-model="addParams.uid"
+                value-key="id"
+                >
+                <el-option
+                  v-for="item in userList"
+                  :key="item.id"
+                  :label="item.username"
+                  :value="item.id">
+                </el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item label="Content">
               <el-input v-model="addParams.content" placeholder=""></el-input>
             </el-form-item>
@@ -225,7 +246,7 @@
 </template>
 
 <script setup>
-import { articleList, addArticle, updateArticle, deleteArticle, getArticleTag, getArticleComment, addComment, delComment } from "@/api/article";
+import { articleList, addArticle, updateArticle, deleteArticle, getArticleTag, getArticleComment, addComment, delComment, updateComment, getCommentUser } from "@/api/article";
 import { ElMessage } from "element-plus";
 import { reactive, ref, toRefs, nextTick, onMounted } from "vue";
 import { Scissor, Edit } from '@element-plus/icons-vue';
@@ -373,16 +394,27 @@ function handleCurrentChange(val) {
 const dialogCommentVisible = ref(false)
 const dialogAddVisible = ref(false)
 const commentList = ref([])
+const userList = ref([])
+
+// 获取评论用户
+function getUser() {
+  getCommentUser().then((res) => {
+    userList.value = res.data
+  }).catch(err => {
+    ElMessage({
+        type: 'error',
+        message: res.msg
+    })
+  })
+}
 
 function handleClose() {
   dialogCommentVisible.value = false
   dialogAddVisible.value = false
 }
 
-function handleComment(data) {
-  addParams.aid = data.id;
-  dialogCommentVisible.value = true
-  getArticleComment({aid: data.id}).then((res) => {
+function getComment(id) {
+  getArticleComment({aid: id}).then((res) => {
     commentList.value = res.data
   }).catch(err => {
     ElMessage({
@@ -392,10 +424,37 @@ function handleComment(data) {
   })
 }
 
-function handleDel(id) {
+function handleComment(data) {
+  addParams.aid = data.id;
+  dialogCommentVisible.value = true
+  getComment(data.id)
+}
+
+
+
+// 修改点赞数
+function changeThumb(data) {
+  // 只能修改点赞数，并只能输入数字
+  data.thumbs_num = Number(data.thumbs_num.replace(/[^\d]/g, ''))
+  updateComment(data).then((res) => {
+    if(res.code == 200) {
+      ElMessage({
+        type: 'success',
+        message: 'Successfully modified!'
+      })
+    }
+  }).catch(err => {
+    ElMessage({
+        type: 'error',
+        message: res.msg
+    })
+  })
+}
+
+function handleDel(id,aid) {
   delComment({id: id}).then((res) => {
     if(res.code == 200) {
-      commentList.value.splice(id,1)
+      getComment(aid)
       ElMessage({
         type: 'success',
         message: 'Successfully deleted!'
@@ -415,28 +474,21 @@ function addCommentVisible() {
 
 function confirmAddComment() {
   addParams.uid = userinfo.value.id
-  console.log(addParams)
+  // 只允许前台用户发布评论
   addComment(addParams).then((res) => {
     if(res.code == 200) {
+      getComment(addParams.aid)
+      addParams = {}
       ElMessage({
         type: 'success',
         message: 'Successfully added!'
       })
       dialogAddVisible.value = false
-      addParams = {}
-      getArticleComment({aid: addParams.aid}).then((res) => {
-        commentList.value = res.data
-      }).catch(err => {
-        ElMessage({
-            type: 'error',
-            message: res.msg
-        })
-      })
     }
   }).catch(err => {
     ElMessage({
           type: 'error',
-          message: res.msg
+          message: err.msg
       })
   })
 }
@@ -531,6 +583,7 @@ const confirmEvent = (data) => {
 }
 
 getArticleList();
+getUser();
 getTag();
 </script>
 
@@ -548,6 +601,14 @@ getTag();
 }
 .el-form .el-select{
   width: 100%;
+}
+.thumb_input {
+  margin-left: 8px;
+  width: 50px;
+  height: 30px;
+}
+.thumb_input .el-input__inner {
+  text-align: center;
 }
 </style>
 <style lang="scss" scoped>
@@ -577,6 +638,7 @@ getTag();
 }
 .cover-img {
   width: auto;
+  min-width: 70px;
   height: 70px;
   border-radius: 5px;
   object-fit: cover;
@@ -607,28 +669,50 @@ getTag();
   object-fit: cover;
 }
 .user_comment {
-  height: 50px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  justify-content: space-around;
+  justify-content: center;
 }
 .username {
   font-size: 16px;
   font-weight: 600;
 }
 .content {
+  margin-top: 8px;
+  max-width: 365px;
+}
+
+.content_txt {
+  max-width: 365px;
+  line-height: 18px;
+  word-wrap:break-word;
   font-size: 14px;
   color: #666;
+
 }
 .item_left {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
 }
 .del {
+  font-size: 14px;
+  color: #ff5050;
   cursor: pointer;
+  margin-left: 12px;
 }
-
+.thumb {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.thumb img {
+  width: 30px;
+  height: 30px;
+  margin-right: 5px;
+}
 .dialog-header {
   display: flex;
   align-items: center;

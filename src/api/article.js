@@ -63,3 +63,19 @@ export function delComment(data) {
         data
     })
 }
+
+export function updateComment(data) {
+    return request({
+        url: 'admin/updateComment',
+        method: 'post',
+        data
+    })
+}
+
+export function getCommentUser(data) {
+    return request({
+        url: 'admin/getCommentUser',
+        method: 'post',
+        data
+    })
+}

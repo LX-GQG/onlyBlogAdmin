@@ -49,53 +49,60 @@ function createService() {
             // 不是正确的 Code
             ElMessage.error(apiData.msg || "Error")
             // return Promise.reject(new Error(apiData.msg || "Error"))
-
         }
       }
     },
     (error) => {
       // Status 是 HTTP 状态码
-      const status = get(error, "response.status")
+      const status = get(error, "error.status")
+      let errorMessage = get(error, "message")
       switch (status) {
+        case "ERR_NETWORK":
+          errorMessage = "网络错误"
+          break
         case 400:
-          error.msg = "请求错误"
+          errorMessage = "请求错误"
           break
         case 401:
-          // Token 过期时，直接退出登录并强制刷新页面（会重定向到登录页）
-        //   useUserStoreHook().logout()
           location.reload()
           break
         case 403:
-          error.msg = "拒绝访问"
+          errorMessage = "拒绝访问"
           break
         case 404:
-          error.msg = "请求地址出错"
+          errorMessage = "请求地址出错"
           break
         case 408:
-          error.msg = "请求超时"
+          errorMessage = "请求超时"
           break
         case 500:
-          error.msg = "服务器内部错误"
+          errorMessage = "服务器内部错误"
           break
         case 501:
-          error.msg = "服务未实现"
+          errorMessage = "服务未实现"
           break
         case 502:
-          error.msg = "网关错误"
+          errorMessage = "网关错误"
           break
         case 503:
-          error.msg = "服务不可用"
+          errorMessage = "服务不可用"
           break
         case 504:
-          error.msg = "网关超时"
+          errorMessage = "网关超时"
           break
         case 505:
-          error.msg = "HTTP 版本不受支持"
+          errorMessage = "HTTP 版本不受支持"
           break
         default:
           break
       }
-      ElMessage.error(error.msg)
+      // 回到登录页
+      userStore.setToken();
+      userStore.setUserInfo();
+      Local.set("userinfo",'');
+      Local.set("token",'');
+      router.push({ path: '/login' })
+      ElMessage.error(errorMessage)
       return Promise.reject(error)
     }
   )

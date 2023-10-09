@@ -75,13 +75,11 @@ import { reactive, ref } from "vue";
 import { login, getMenu } from "../api/login";
 import { useRoute, useRouter } from "vue-router";
 import { useUserStore } from '../store/modules/user';
-import { storeToRefs } from 'pinia'
 import { Local } from '@/cache/index'
 import IdentifyCode from "@/components/IdentifyCode.vue";
 import { ElMessage, ElLoading } from "element-plus";
 
 const userStore = useUserStore()
-const { userInfo, token } = storeToRefs(userStore);
 /*
       reactive
       作用：定义多个数据的响应式
@@ -150,6 +148,7 @@ const loginAdmin = () => {
         }
     })
     .catch((err) => {
+      identify.value.refreshCode();
       console.log(err);
       loadingInstance.close();
     });
