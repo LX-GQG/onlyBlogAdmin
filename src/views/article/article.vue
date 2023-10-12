@@ -34,6 +34,7 @@
                 raw-content
                 placement="top-start"
                 v-if="row.title">
+              <!-- 标题超过30个字符，则用省略号代替 -->
               <span v-if="row.title && row.title.length <= 30">
                   {{ row.title }}
               </span>
@@ -61,11 +62,11 @@
               />
           </template>
         </el-table-column>
-        <!-- <el-table-column label="标签" min-width="80" align="center">
+        <el-table-column label="真实点赞" width="90" align="center">
           <template #default="{ row }">
-            <el-tag class="ml-2 tag" type="success" v-for="(item, index) in row.tags" :key="index">{{ item.name }}</el-tag>
+            {{ row.real_thumbs_num ? row.real_thumbs_num : '0' }}
           </template>
-        </el-table-column> -->
+        </el-table-column>
         <el-table-column label="发布时间" width="180" align="center">
           <template #default="{ row }">
               {{ row.create_time ? row.create_time : '无' }}
