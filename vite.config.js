@@ -5,7 +5,9 @@ import vue from '@vitejs/plugin-vue'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-    base: './',
+    // 这个路径之前的设置是“./”，但是官网说了，“./”是用于开发环境的, 打包使用“/”, 刷新就不会白屏
+    base: '/',
+    assetsDir: 'assets',
     plugins: [
       vue(),
     ],

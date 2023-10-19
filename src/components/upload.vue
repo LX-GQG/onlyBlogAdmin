@@ -1,7 +1,7 @@
 <template>
     <el-upload
       class="avatar-uploader"
-      action="https://localhost:3658/admin/upload"
+      :action="uploadUrl"
       :headers="header"
       :on-success="handleSuccess"
       :before-upload="beforeUpload"
@@ -31,6 +31,8 @@ export default defineComponent({
         const header = {
             Authorization: 'Bearer ' + Local.get('token')
         }
+        const uploadUrl = import.meta.env.VITE_BASE_API + '/admin/upload'
+
         const handleSuccess = (response, file, fileList) => {
             // 上传成功的处理逻辑
             props.imageUrl = response.url;
@@ -42,7 +44,7 @@ export default defineComponent({
             // 文件上传之前的处理逻辑，例如文件类型和大小的验证
             const isJPG = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/gif' || file.type === 'image/bmp' || image.type === 'image/webp' || image.type === 'image/jpg';
             const isLt2M = file.size / 1024 / 1024 < 4;
-            console.log(file,isJPG)
+            // console.log(file,isJPG)
             if (!isJPG) {
                 ElMessage.error('只能上传jpg/png文件！');
             }
@@ -55,7 +57,8 @@ export default defineComponent({
         return {
             handleSuccess,
             beforeUpload,
-            header
+            header,
+            uploadUrl
         }
     }
 })
