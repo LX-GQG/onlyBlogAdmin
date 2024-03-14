@@ -11,7 +11,7 @@
     <li>Node.js 服务端 API 接口地址：https://github.com/LX-GQG/onlyBlog </li>    
 </ul>
 
-访问地址 ad.gqgwr.cn 账号是lx 密码123456
+访问地址 https://ad.gqgwr.cn 账号是lx 密码123456
 
 ## 项目启动
 ```
