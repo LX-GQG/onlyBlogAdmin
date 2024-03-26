@@ -6,17 +6,17 @@
             <el-button type="primary" plain :icon="Search" @click="SearchValue">Search</el-button>
         </el-form-item> -->
         <el-form-item class="el-item">
-          <el-button type="warning" plain :icon="Edit" @click="addToAdmin">Add Tag</el-button>
+          <el-button type="warning" plain :icon="Edit" @click="addToAdmin">{{ $t('tableHead.add_tag') }}</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="tagData" border @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
         <el-table-column label="ID" prop="id" width="120" align="center"></el-table-column>
-        <el-table-column label="标签名称" prop="name" align="center" min-width="100"></el-table-column>
-        <el-table-column label="Operations" width="180" align="center" fixed="right">
+        <el-table-column :label="$t('tableHead.tagname')" prop="name" align="center" min-width="100"></el-table-column>
+        <el-table-column :label="$t('tableHead.operation')" width="180" align="center" fixed="right">
           <template #default="{ row }">
             <div class="operations">
-              <lx-button type="primary" @click="handelEdit(row)">Edit</lx-button>
+              <lx-button type="primary" @click="handelEdit(row)">{{ $t('tableHead.edit') }}</lx-button>
               <el-popconfirm
                 width="230px"
                 confirm-button-text="Yes"
@@ -26,7 +26,7 @@
                 title="Are you sure to delete this?"
                 @confirm="confirmEvent(row)">
                 <template #reference>
-                  <lx-button type="danger">Detail</lx-button>
+                  <lx-button type="danger">{{ $t('tableHead.delete') }}</lx-button>
                 </template>
               </el-popconfirm>
             </div>
@@ -44,14 +44,14 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="450px" draggable>
+      <el-dialog :title="isEdit?$t('tableHead.add'):$t('tableHead.edit')" v-model="dialogTableVisible" width="450px" draggable>
         <el-form :model="form" label-width="100px">
-          <el-form-item label="Tag Name">
+          <el-form-item :label="$t('tableHead.tagname')">
             <el-input v-model="form.name" placeholder=""></el-input>
           </el-form-item>
           <el-form-item class="form-bottom">
-              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
-              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">Confirm</lx-button>
+              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">{{ $t('tableHead.cancel') }}</lx-button>
+              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">{{ $t('tableHead.confirm') }}</lx-button>
           </el-form-item>
         </el-form>
       </el-dialog>

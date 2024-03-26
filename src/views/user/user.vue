@@ -5,10 +5,10 @@
         <el-form-item class="el-item" label="ID:">
             <el-input v-model="params.id" placeholder="Search Id"></el-input>
         </el-form-item>
-        <el-form-item class="el-item" label="Username:">
+        <el-form-item class="el-item" :label="$t('tableHead.username')+':'">
             <el-input v-model="params.username" placeholder="Search Username"></el-input>
         </el-form-item>
-        <el-form-item label="CreateTime:" class="el-item">
+        <el-form-item :label="$t('tableHead.edit')+':'" class="el-item">
             <el-date-picker
               v-model="dateValue"
               type="datetimerange"
@@ -19,18 +19,18 @@
             />
           </el-form-item>
         <el-form-item class="el-item">
-            <el-button type="primary" plain :icon="Search" @click="SearchValue">Search</el-button>
+            <el-button type="primary" plain :icon="Search" @click="SearchValue">{{ $t('tableHead.search') }}</el-button>
         </el-form-item>
         <el-form-item class="el-item">
           <!-- <lx-button type="danger" @click="batchRemove">Batch Delete</lx-button> -->
-          <el-button type="warning" plain :icon="Edit" @click="addToAdmin">Add User</el-button>
+          <el-button type="warning" plain :icon="Edit" @click="addToAdmin">{{ $t('tableHead.add_user') }}</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="userData" border @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
         <el-table-column label="ID" prop="id" width="60" align="center"></el-table-column>
-        <el-table-column label="用户名称" prop="username" align="center" min-width="100"></el-table-column>
-        <el-table-column label="用户头像" width="100" align="center">
+        <el-table-column :label="$t('tableHead.username')" prop="username" align="center" min-width="100"></el-table-column>
+        <el-table-column :label="$t('tableHead.userAvatar')" width="120" align="center">
             <template #default="{ row }">
               <!-- preview-teleported不加的话，会出现图片预览被遮罩 -->
               <el-image
@@ -42,11 +42,11 @@
               />
             </template>
         </el-table-column>
-        <el-table-column label="邮箱" prop="email" align="center"></el-table-column>
+        <el-table-column :label="$t('tableHead.email')" prop="email" align="center"></el-table-column>
         <el-table-column label="IP" prop="ip" align="center"></el-table-column>
-        <el-table-column label="备注" prop="remark" align="center"></el-table-column>
-        <el-table-column label="创建时间" prop="create_time" width="170" align="center"></el-table-column>
-        <el-table-column label="禁用/启用" prop="status" width="100" align="center">
+        <el-table-column :label="$t('tableHead.remark')" prop="remark" align="center"></el-table-column>
+        <el-table-column :label="$t('tableHead.create_time')" prop="create_time" width="170" align="center"></el-table-column>
+        <el-table-column :label="$t('tableHead.enable')+'/'+$t('tableHead.disable')" prop="status" width="130" align="center">
           <template #default="{ row }">
             <el-switch
               class="ml-2"
@@ -58,10 +58,10 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="Operations" width="180" align="center" fixed="right">
+        <el-table-column :label="$t('tableHead.operation')" width="180" align="center" fixed="right">
           <template #default="{ row }">
             <div class="operations">
-              <lx-button type="primary" @click="handelEdit(row)">Edit</lx-button>
+              <lx-button type="primary" @click="handelEdit(row)">{{ $t('tableHead.edit') }}</lx-button>
               <el-popconfirm
                 width="230px"
                 confirm-button-text="Yes"
@@ -71,7 +71,7 @@
                 title="Are you sure to delete this?"
                 @confirm="confirmEvent(row)">
                 <template #reference>
-                  <lx-button type="danger">Detail</lx-button>
+                  <lx-button type="danger">{{ $t('tableHead.delete') }}</lx-button>
                 </template>
               </el-popconfirm>
             </div>
@@ -89,23 +89,23 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="450px" draggable>
+      <el-dialog :title="isEdit?$t('tableHead.add'):$t('tableHead.edit')" v-model="dialogTableVisible" width="450px" draggable>
         <el-form :model="form" label-width="100px">
-          <el-form-item label="Username">
+          <el-form-item :label="$t('tableHead.username')">
             <el-input v-model="form.username" placeholder=""></el-input>
           </el-form-item>
-          <el-form-item v-if="isEdit" label="Password">
+          <el-form-item v-if="isEdit" :label="$t('tableHead.password')">
             <el-input v-model="form.password" placeholder=""></el-input>
           </el-form-item>
-          <el-form-item label="Email">
+          <el-form-item :label="$t('tableHead.email')">
             <el-input v-model="form.email" placeholder=""></el-input>
           </el-form-item>
-          <el-form-item label="Remark">
+          <el-form-item :label="$t('tableHead.remark')">
             <el-input v-model="form.remark" placeholder=""></el-input>
           </el-form-item>
           <el-form-item class="form-bottom">
-              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
-              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">Confirm</lx-button>
+              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">{{ $t('tableHead.cancel') }}</lx-button>
+              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">{{ $t('tableHead.confirm') }}</lx-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -114,7 +114,6 @@
 
 <script setup>
 import { userList, addUser, updateUser, deleteUser } from "@/api/user";
-import { roleList } from '@/api/role';
 import { ElMessage } from "element-plus";
 import { reactive, ref, toRefs } from "vue";
 import { Search, Edit } from '@element-plus/icons-vue';
@@ -122,7 +121,6 @@ import { Search, Edit } from '@element-plus/icons-vue';
 const isDisabled = ref(false)
 const isEdit = ref(false)
 const userData = ref([]);
-const roleData = ref([]);
 const dialogTableVisible = ref(false);
 const multipleSelection = ref([])
 const search = ref()
@@ -331,8 +329,8 @@ getUserList();
   height: 50px;
 }
 .avatar-img {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     border-radius: 10px;
     object-fit: cover;
 }

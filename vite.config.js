@@ -21,7 +21,14 @@ export default defineConfig({
       },
     },
     server: {
-      hmr: true
+      hmr: true,
+      // proxy: {
+      //   '/api': {
+      //     target: 'http://www.gqgwr.cn:3658',
+      //     changeOrigin: true,
+      //     rewrite: path => path.replace(/^\/api/,'')
+      //   }
+      // }
     },
     // server: {
     //   // 是否开启 https

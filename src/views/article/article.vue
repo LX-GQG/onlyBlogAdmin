@@ -2,13 +2,13 @@
     <div class="user-table">
       <!-- 搜索筛选 -->
       <el-form :inline="true" :model="params" class="search" >
-        <el-form-item label="Title:" class="el-item" >
-          <el-input v-model="params.title" placeholder="Title"></el-input>
+        <el-form-item :label="$t('tableHead.title')+':'" class="el-item" >
+          <el-input v-model="params.title" :placeholder="$t('tableHead.title')"></el-input>
         </el-form-item>
-        <el-form-item label="Author:" class="el-item" >
-          <el-input v-model="params.author" placeholder="Author"></el-input>
+        <el-form-item :label="$t('tableHead.author')+':'" class="el-item" >
+          <el-input v-model="params.author" :placeholder="$t('tableHead.title')"></el-input>
         </el-form-item>
-        <el-form-item label="ArticleTime:" class="el-item">
+        <el-form-item :label="$t('tableHead.article_time')+':'" class="el-item">
           <el-date-picker
             v-model="dateValue"
             type="datetimerange"
@@ -20,14 +20,14 @@
         </el-form-item>
         <el-form-item class="el-item">
           <!-- <lx-button type="danger" @click="batchRemove">Batch Delete</lx-button> -->
-          <lx-button type="danger" @click="SearchValue">Search</lx-button>
-          <el-button type="primary" plain :icon="Edit" @click="addNews">Add Article</el-button>
+          <lx-button type="danger" @click="SearchValue">{{ $t('tableHead.search') }}</lx-button>
+          <el-button type="primary" plain :icon="Edit" @click="addNews">{{ $t('tableHead.add_article') }}</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="articleData" border @selection-change="handleSelectionChange" row-key="id">
         <!-- <el-table-column type="selection" width="55" /> -->
         <el-table-column label="ID" prop="id" width="60" align="center"></el-table-column>
-        <el-table-column label="标题" align="center">
+        <el-table-column :label="$t('tableHead.title')" align="center">
           <template #default="{ row }">
             <el-tooltip
                 :content="row.title"
@@ -45,13 +45,13 @@
             <span v-else-if="row.title== null"> 无 </span>
           </template>
         </el-table-column>
-        <el-table-column label="类型" prop="type" width="80" align="center"></el-table-column>
-        <el-table-column label="发布人" align="center" width="100">
+        <el-table-column :label="$t('tableHead.type')" prop="type" width="80" align="center"></el-table-column>
+        <el-table-column :label="$t('tableHead.publisher')" align="center" width="100">
             <template #default="{ row }">
                 {{ row.author ? row.author : '无' }}
             </template>
         </el-table-column>
-        <el-table-column label="封面" min-width="80" align="center">
+        <el-table-column :label="$t('tableHead.cover')" min-width="80" align="center">
           <template #default="{ row }">
             <el-image
                 class="cover-img"
@@ -62,17 +62,17 @@
               />
           </template>
         </el-table-column>
-        <el-table-column label="真实点赞" width="90" align="center">
+        <el-table-column :label="$t('tableHead.Real_likes')" width="100" align="center">
           <template #default="{ row }">
             {{ row.real_thumbs_num ? row.real_thumbs_num : '0' }}
           </template>
         </el-table-column>
-        <el-table-column label="发布时间" width="180" align="center">
+        <el-table-column :label="$t('tableHead.release_time')" width="180" align="center">
           <template #default="{ row }">
               {{ row.create_time ? row.create_time : '无' }}
           </template>
         </el-table-column>
-        <el-table-column label="上架/下架" prop="status" width="90" align="center">
+        <el-table-column :label="$t('tableHead.on_off_shelves')" prop="status" width="90" align="center">
           <template #default="{ row }">
             <el-switch
               class="ml-2"
@@ -84,11 +84,11 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="Operations" width="250px" align="center">
+        <el-table-column :label="$t('tableHead.operation')" width="250px" align="center">
           <template #default="{ row }">
             <div class="operations">
-              <lx-button type="primary" @click="handleEdit(row)">Edit</lx-button>
-              <el-button type="warning" @click="handleComment(row)">Comment</el-button>
+              <lx-button type="primary" @click="handleEdit(row)">{{ $t('tableHead.edit') }}</lx-button>
+              <el-button type="warning" @click="handleComment(row)">{{ $t('tableHead.comment') }}</el-button>
               <el-popconfirm
                 width="230px"
                 confirm-button-text="Yes"
@@ -99,7 +99,7 @@
                 @confirm="confirmEvent(row)"
               >
                 <template #reference>
-                  <lx-button type="danger">Detail</lx-button>
+                  <lx-button type="danger">{{ $t('tableHead.delete') }}</lx-button>
                 </template>
               </el-popconfirm>
             </div>
@@ -117,12 +117,12 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="400px" fullscreen draggable>
+      <el-dialog :title="isEdit?$t('tableHead.add'):$t('tableHead.edit')" v-model="dialogTableVisible" width="400px" fullscreen draggable>
         <el-form :model="form" label-width="100px">
-          <el-form-item label="Title">
+          <el-form-item :label="$t('tableHead.title')">
             <el-input v-model="form.title" placeholder=""></el-input>
           </el-form-item>
-          <el-form-item label="Tag" v-if="hasTags">
+          <el-form-item :label="$t('tableHead.tag')" v-if="hasTags">
             <el-select
                   v-model="form.tags"
                   value-key="id"
@@ -136,17 +136,17 @@
                   </el-option>
                 </el-select>
           </el-form-item>
-          <el-form-item label="Cover">
+          <el-form-item :label="$t('tableHead.cover')">
             <upload :imageUrl="form.cover" @upload-success="handleSuccess"></upload>
           </el-form-item>
-          <el-form-item label="Content">
+          <el-form-item :label="$t('tableHead.content')">
             <editor ref="froalaEditor" @on-change="changeContent" v-model:value="form.content" :content="form.content"></editor>
           </el-form-item>
         </el-form>
         <template #footer>
             <div class="dialog-footer">
-              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
-              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">Confirm</lx-button>
+              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">{{$t('tableHead.cancel')}}</lx-button>
+              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">{{$t('tableHead.confirm')}}</lx-button>
             </div>
         </template>
       </el-dialog>
@@ -159,8 +159,8 @@
         <template #header="{ titleId, titleClass }">
           <div class="dialog-header">
             <div class="dialog-left">
-              <h5 :id="titleId" :class="titleClass">Comment</h5>
-              <lx-button type="primary" @click="addCommentVisible">Add</lx-button>
+              <h5 :id="titleId" :class="titleClass">{{ $t('tableHead.comment') }}</h5>
+              <lx-button type="primary" @click="addCommentVisible">{{ $t('tableHead.add') }}</lx-button>
             </div>
           </div>
         </template>
@@ -190,7 +190,7 @@
                     >
                     <template #reference>
                       <span class="del">
-                        DEL
+                        {{ $t('tableHead.delete') }}
                       </span>
                     </template>
                   </el-popconfirm>
@@ -199,26 +199,25 @@
             </div>
             <div class="item_left">
               <div class="thumb">
-                <!-- 点赞，暂时还没做 -->
                 <img src="../../../src/assets/img/thumb.png" alt="thumb"/>
                 <span>{{ item.real_thumbs_num }}</span>
               </div>
               <div>
-                <span>点赞数叠加</span>
+                <span>{{ $t('tableHead.thumb_num') }}</span>
                 <el-input class="thumb_input" v-model="item.thumbs_num" @change="changeThumb(item)"></el-input>
               </div>
             </div>
           </div>
         </div>
         <el-dialog
-          title="Add Comment"
+          :title="$t('tableHead.add_comment')"
           v-model="dialogAddVisible"
           width="400px"
           append-to-body
           draggable
         >
           <el-form :model="addParams" label-width="100px">
-            <el-form-item label="User">
+            <el-form-item :label="$t('tableHead.user')">
               <el-select
                 v-model="addParams.uid"
                 value-key="id"
@@ -231,20 +230,20 @@
                 </el-option>
               </el-select>
             </el-form-item>
-            <el-form-item label="Content">
+            <el-form-item :label="$t('tableHead.comment')">
               <el-input v-model="addParams.content" placeholder=""></el-input>
             </el-form-item>
           </el-form>
           <template #footer>
             <div class="dialog-footer">
-              <lx-button type="info" style="margin-left: 15px;" @click="dialogAddVisible = false">Cancel</lx-button>
-              <lx-button type="primary" style="margin-left: 20px;" @click="confirmAddComment()">Confirm</lx-button>
+              <lx-button type="info" style="margin-left: 15px;" @click="dialogAddVisible = false">{{ $t('tableHead.cancel') }}</lx-button>
+              <lx-button type="primary" style="margin-left: 20px;" @click="confirmAddComment()">{{ $t('tableHead.confirm') }}</lx-button>
             </div>
           </template>
         </el-dialog> 
       </el-dialog>
     </div>
-</template>
+</template>x
 
 <script setup>
 import { articleList, addArticle, updateArticle, deleteArticle, getArticleTag, getArticleComment, addComment, delComment, updateComment, getCommentUser } from "@/api/article";
@@ -479,7 +478,10 @@ function confirmAddComment() {
   addComment(addParams).then((res) => {
     if(res.code == 200) {
       getComment(addParams.aid)
-      addParams = {}
+      // 清空 addParams 的数据
+      Object.keys(addParams).forEach(key => {
+        addParams[key] = "";
+      });
       ElMessage({
         type: 'success',
         message: 'Successfully added!'

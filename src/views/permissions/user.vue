@@ -10,13 +10,13 @@
         </el-form-item> -->
         <el-form-item class="el-item">
           <!-- <lx-button type="danger" @click="batchRemove">Batch Delete</lx-button> -->
-          <el-button type="primary" plain :icon="Edit" @click="addToAdmin">Add Admin</el-button>
+          <el-button type="primary" plain :icon="Edit" @click="addToAdmin">{{ $t('tableHead.add_user') }}</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="adminData" border @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
-        <el-table-column label="用户名称" prop="username"></el-table-column>
-        <el-table-column label="禁用/启用" prop="status">
+        <el-table-column :label="$t('tableHead.username')" prop="username"></el-table-column>
+        <el-table-column :label="$t('tableHead.enable')+'/'+$t('tableHead.disable')" prop="status">
           <template #default="{ row }">
             <el-switch
               class="ml-2"
@@ -28,15 +28,15 @@
             </el-switch>
           </template>
         </el-table-column>
-        <el-table-column label="角色">
+        <el-table-column :label="$t('tableHead.role')">
             <template #default="{ row }">
                 {{ row.roles[0] ? row.roles[0].role_type : '无角色' }}
             </template>
         </el-table-column>
-        <el-table-column label="Operations" width="180px">
+        <el-table-column :label="$t('tableHead.operation')" width="180px">
           <template #default="{ row }">
             <div class="operations">
-              <lx-button type="primary" @click="handelEdit(row)">Edit</lx-button>
+              <lx-button type="primary" @click="handelEdit(row)">{{ $t('tableHead.edit') }}</lx-button>
               <el-popconfirm
                 width="230px"
                 confirm-button-text="Yes"
@@ -47,7 +47,7 @@
                 @confirm="confirmEvent(row)"
               >
                 <template #reference>
-                  <lx-button type="danger">Detail</lx-button>
+                  <lx-button type="danger">{{ $t('tableHead.delete') }}</lx-button>
                 </template>
               </el-popconfirm>
             </div>
@@ -65,15 +65,15 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="450px">
+      <el-dialog :title="isEdit?$t('tableHead.add'):$t('tableHead.edit')" v-model="dialogTableVisible" width="450px">
         <el-form :model="form" label-width="100px">
-          <el-form-item label="username">
+          <el-form-item :label="$t('tableHead.username')">
             <el-input v-model="form.username" placeholder=""></el-input>
           </el-form-item>
-          <el-form-item label="new Pass">
+          <el-form-item :label="$t('tableHead.new_pass')">
             <el-input v-model="form.password" placeholder="" show-password></el-input>
           </el-form-item>
-          <el-form-item label="role">
+          <el-form-item :label="$t('tableHead.role')">
             <el-select v-model="form.rid" @change="handleRoleChange" placeholder="请选择用户角色" style="width:310px" clearable :disabled="isDisabled">
                 <el-option
                   v-for="(item, index) in roleData"
@@ -85,8 +85,8 @@
             </el-select>
           </el-form-item>
           <el-form-item class="form-bottom">
-              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
-              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">Confirm</lx-button>
+              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">{{ $t('tableHead.cancel') }}</lx-button>
+              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">{{ $t('tableHead.confirm') }}</lx-button>
           </el-form-item>
         </el-form>
       </el-dialog>

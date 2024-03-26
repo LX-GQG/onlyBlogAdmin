@@ -57,6 +57,7 @@ export default defineComponent({
             router.replace(next.value);
           }
       }
+
       goDefaultPage(menu)
 
       return {

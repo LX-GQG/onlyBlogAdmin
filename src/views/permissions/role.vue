@@ -10,18 +10,18 @@
         </el-form-item> -->
         <el-form-item class="el-item">
           <!-- <lx-button type="danger" @click="batchRemove">Batch Delete</lx-button> -->
-          <el-button type="primary" plain :icon="Edit" @click="addToRole">Add Role</el-button>
+          <el-button type="primary" plain :icon="Edit" @click="addToRole">{{ $t('tableHead.add_role') }}</el-button>
         </el-form-item>
       </el-form>
       <el-table :data="roleData" border @selection-change="handleSelectionChange" row-key="id">
         <el-table-column type="selection" width="55" />
-        <el-table-column label="角色名称" prop="role_type"></el-table-column>
-        <el-table-column label="备注" prop="remark"></el-table-column>
-        <el-table-column label="Operations" width="280px">
+        <el-table-column :label="$t('tableHead.rolename')" prop="role_type"></el-table-column>
+        <el-table-column :label="$t('tableHead.remark')" prop="remark"></el-table-column>
+        <el-table-column :label="$t('tableHead.operation')" width="280px">
           <template #default="{ row }">
             <div class="operations">
-              <lx-button type="primary" @click="handelEdit(row)">Edit</lx-button>
-              <lx-button type="danger" @click="handelPromission(row)">Promission</lx-button>
+              <lx-button type="primary" @click="handelEdit(row)">{{ $t('tableHead.edit') }}</lx-button>
+              <lx-button type="danger" @click="handelPromission(row)">{{ $t('tableHead.promission') }}</lx-button>
               <el-popconfirm
                 width="230px"
                 confirm-button-text="Yes"
@@ -32,7 +32,7 @@
                 @confirm="confirmEvent(row)"
               >
                 <template #reference>
-                  <lx-button type="warning">Detail</lx-button>
+                  <lx-button type="warning">{{ $t('tableHead.delete') }}</lx-button>
                 </template>
               </el-popconfirm>
             </div>
@@ -50,24 +50,27 @@
         @current-change="handleCurrentChange"
         layout="total, sizes, prev, pager, next, jumper"
       ></el-pagination>
-      <el-dialog :title="isEdit?'ADD':'EDIT'" v-model="dialogTableVisible" width="400px">
+      <el-dialog :title="isEdit?$t('tableHead.add'):$t('tableHead.edit')" v-model="dialogTableVisible" width="400px">
         <el-form :model="form" label-width="100px">
-          <el-form-item label="角色名称">
+          <el-form-item :label="$t('tableHead.rolename')">
             <el-input v-model="form.role_type" placeholder=""></el-input>
           </el-form-item>
-          <el-form-item label="备注">
+          <el-form-item :label="$t('tableHead.remark')">
             <el-input v-model="form.remark" placeholder=""></el-input>
           </el-form-item>
           <el-form-item class="form-bottom">
-              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">Cancel</lx-button>
-              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">Confirm</lx-button>
+              <lx-button type="info" style="margin-left: 15px;" @click="cancelEdit">{{ $t('tableHead.cancel') }}</lx-button>
+              <lx-button type="primary" style="margin-left: 20px;" @click="isEdit?confirmAdd():confirmEdit()">{{ $t('tableHead.confirm') }}</lx-button>
           </el-form-item>
         </el-form>
       </el-dialog>
       <el-dialog
-            title="权限分配"
+            :title="$t('tableHead.promission')"
             v-model="authDialog"
-            width="400px">
+            width="400px"
+            align-center
+            draggable
+            >
               <el-tree
                 :data="authList"
                 :props="treeProps"
@@ -82,8 +85,8 @@
                 @check-change="handleCheckChange"
               ></el-tree>
               <div class="form-bottom">
-                <el-button @click="authDialog = false">取 消</el-button>
-                <el-button type="primary" @click="confirmAuth">确 定</el-button>
+                <el-button @click="authDialog = false">{{ $t('tableHead.cancel') }}</el-button>
+                <el-button type="primary" @click="confirmAuth">{{ $t('tableHead.confirm') }}</el-button>
               </div>
         </el-dialog>
     </div>

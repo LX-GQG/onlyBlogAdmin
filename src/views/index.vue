@@ -15,7 +15,6 @@
 <script setup>
 import AdminHeader from '@/components/adminHeader.vue'
 import AdminSidebar from '@/components/adminSidebar.vue'
-import { ref } from 'vue';
 
 component:{
     AdminHeader

@@ -63,7 +63,7 @@ const routes = [
     path: '/login',
     name: 'login',
     meta: {
-      title: '玥愔管理后台'
+      title: 'only后台'
     },
     component: () => import('@/views/login.vue')
   },
@@ -125,6 +125,42 @@ const routes = [
         name: "Tag",
         icon: 'Discount',
         component: () => import("@/views/tag/tag.vue"),
+        meta: {
+          requireAuth: true, // 添加该字段，表示进入这个路由是需要登录的
+        },
+        children:[
+          
+        ]
+      },
+      {
+        path: "/detect/detect",
+        name: "Detected",
+        icon: 'Mouse',
+        component: () => import("@/views/detect/detect.vue"),
+        meta: {
+          requireAuth: true, // 添加该字段，表示进入这个路由是需要登录的
+        },
+        children:[
+          
+        ]
+      },
+      {
+        path: "/detect/echart",
+        name: "Echart",
+        icon: 'Mouse',
+        component: () => import("@/views/detect/echart.vue"),
+        meta: {
+          requireAuth: true, // 添加该字段，表示进入这个路由是需要登录的
+        },
+        children:[
+          
+        ]
+      },
+      {
+        path: "/lottery/lottery",
+        name: "Lottery",
+        icon: 'Present',
+        component: () => import("@/views/lottery/lottery.vue"),
         meta: {
           requireAuth: true, // 添加该字段，表示进入这个路由是需要登录的
         },

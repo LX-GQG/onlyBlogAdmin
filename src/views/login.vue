@@ -9,7 +9,7 @@
               <div class="login-neon">
                 <div class="login-table">
                   <div class="login-name">
-                    玥愔
+                    Only
                   </div>
                   <el-form class="form" :model="loginForm">
                     <el-form-item prop="username">
@@ -114,6 +114,7 @@ const handleLogin = () => {
         type: 'error',
         message: 'Verification code error!'
     })
+    loginForm.identifyCode = "";
     identify.value.refreshCode();
   }
 };

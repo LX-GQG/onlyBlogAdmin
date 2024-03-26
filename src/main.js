@@ -13,9 +13,12 @@ import 'froala-editor/css/froala_editor.pkgd.min.css';
 import 'froala-editor/css/froala_style.min.css';
 import VueFroala from 'vue-froala-wysiwyg';
 
+// 多语言
+import i18n from './i18n'
+
 const app = createApp(App)
 app.use(VueFroala)
-
+app.use(i18n)
 import lxButton from './components/lxButton.vue';
 import App from './App.vue'
 import router from './router'

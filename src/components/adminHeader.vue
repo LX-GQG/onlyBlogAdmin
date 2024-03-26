@@ -1,10 +1,28 @@
 <template>
     <div class="header">
         <div class="header-left">
-
+            <!-- {{ $t('headMenus.userName') }} -->
         </div>
         
         <div class="header-info">
+            <day-night></day-night>
+            <div class="language"  id="top-language">
+                <div class="langbox">
+                    <div class="langicon">
+                        <img src="/src/assets/img/language.png" />{{ $t('lang.language') }}
+                        <div class="langitem">
+                            <div @click="translate('en-US')">
+                                <img src="/src/assets/img/en.png" />
+                                English
+                            </div>
+                            <div @click="translate('zh-CN')">
+                                <img src="/src/assets/img/zh.png" />
+                                中文
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <el-dropdown class="user-name" trigger="hover" @command="handleCommand">
                 <span class="el-dropdown-link">
                     <!-- 默认头像 -->
@@ -69,14 +87,18 @@ import { updateAdmin, updatePassword } from '@/api/admin';
 import { ElMessage } from 'element-plus';
 import { useUserStore } from '../store/modules/user';
 import { Local } from '@/cache/index'
+import dayNight from './dayNight.vue'
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
-    components: {upload},
+    components: {upload,dayNight},
     setup() {
         const dialogUserVisible = ref(false);
 
         const dialogPassVisible = ref(false);
         
+        const { locale } = useI18n();
+
         const userInfo = ref({})
         userInfo.value = Local.get("userinfo");
         const passwordFrom = reactive({
@@ -106,7 +128,18 @@ export default defineComponent({
                 console.log()
             }
         }
-
+        // 一键变色
+        function changeColor(color) {
+            const root = document.documentElement;
+            const currentFilterValue = getComputedStyle(root).getPropertyValue('--f').trim();
+            const newFilterValue = currentFilterValue === '1' ? '0' : '1';
+            root.style.setProperty('--f', newFilterValue);
+        }
+        // 切换语言
+        function translate(lang) {
+            locale.value = lang
+            Local.set('lang',lang)
+        }
         // 确认
         function confirmEdit () {
             updateAdmin(userInfo.value)
@@ -178,7 +211,8 @@ export default defineComponent({
             cancelEdit,
             confirmEdit,
             confirmPassword,
-            handleSuccess
+            handleSuccess,
+            translate
         }     
     },
 })
@@ -193,6 +227,67 @@ export default defineComponent({
         box-shadow: rgba(179, 125, 241, 0.15) 0px 11px 13px -8px;
         border-bottom: 1px solid #e8e8e8;
         height: 100%;
+        .language {
+            margin-right: 15px;
+            display: flex; 
+            justify-content: right;
+        }
+        
+        .language .langicon{
+            width:auto;
+            display: flex;
+            align-items: center;
+            height:24px;
+            text-align:center;
+            font-size:13px;
+        }
+        .language .langicon img{
+            max-height:24px;
+            margin-right: 6px;
+            vertical-align:middle;
+            display:inline-block;
+            float: none;
+        }
+        .language .langbox {
+            position:relative;
+            float:left;
+            display:inline;
+        }
+        .language .langbox .langitem {
+            position:absolute;
+            width:110px;
+            left:50%;
+            margin-left:-60px;
+            top:34px;
+            background:#fff;
+            z-index:9;
+            opacity:0;
+            visibility:hidden;
+            transition:.5s ease;
+        }
+        .language .langbox .langitem div {
+            text-align:left;
+            text-decoration:none;
+            display:block;
+            padding:8px 10px 8px 20px;
+            color:#000000;
+            font-size: 12px;
+            transition:.5s ease;
+            cursor: pointer;
+        }
+        .language .langbox .langitem div img {
+            height:15px;
+            max-width: 22px;
+            object-fit: contain;
+        }
+        .language .langbox .langitem div:hover {
+            background:#77a5fb;
+            color:#ffffff;
+        }
+        .language .langbox:hover .langitem {
+            visibility:visible;
+            opacity:1;
+        }
         .header-left {
             display: flex;
             align-items: center;

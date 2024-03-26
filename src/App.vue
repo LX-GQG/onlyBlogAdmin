@@ -17,13 +17,14 @@
 .el-dropdown-link:focus-visible {
   outline: unset;
 }
+:root {
+  --f: 0;
+}
+html, body {
+  filter: grayscale(var(--f));
+}
 </style>
 <style scoped>
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
 .main {
   height: 100%;
   position: relative;
