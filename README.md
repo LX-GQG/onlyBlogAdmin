@@ -32,6 +32,9 @@ npm run dev 或者 yarn dev
 登录
 ![登录](gitImg/Snipaste_2023-08-28_10-18-42.png)
 
+404
+![登录](gitImg/Snipaste_2024-03-29_19-45-46.png)
+
 用户管理
 ![用户管理](gitImg/Snipaste_2023-08-28_10-17-58.png)
 

@@ -130,16 +130,19 @@ const params = reactive({
 // }
 
 // ip-api.com ,可切换显示语言
-let url = ref('http://ip-api.com/json/')
+// let url = ref('http://ip-api.com/json/')
+// ipinfo.io:
+let url = ref('https://api.ipbase.com/v1/json/')
 
 function getIpInfo(data) {
   const loadingInstance = ElLoading.service({ fullscreen: true, text: "Loading..." })
   let ip = data.ip
-  axios.get(url.value + ip + '?lang=zh-CN').then((res)=>{
+  axios.get(url.value + ip, { timeout: 5000 }) // 设置超时时间5秒
+    .then((res)=>{
+      loadingInstance.close()
       //请求成功的回调函数
-      if(res.data.status == 'success') {
-        loadingInstance.close()
-        ElMessageBox.alert('国家：' + res.data.country + ', 省份：'+ res.data.regionName +', 城市：' + res.data.city, 'IP info', {
+      if(res.data) {
+        ElMessageBox.alert('国家：' + res.data.country_name + ', 省份：'+ res.data.region_name +', 城市：' + res.data.city, 'IP info', {
           // if you want to disable its autofocus
           // autofocus: false,
           confirmButtonText: 'OK',
@@ -148,6 +151,7 @@ function getIpInfo(data) {
   }
   ).catch((err)=>{
       //请求失败的回调函数
+      loadingInstance.close()
       ElMessage.error(err.info)
       console.log(err)
   })
